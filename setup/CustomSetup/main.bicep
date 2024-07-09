@@ -55,6 +55,7 @@ param deployDiscovery bool = false
 param functionAppName string = 'AMP-${instanceName}-${split(subscriptionId, '-')[0]}-Function'
 param logicAppName string = 'AMP-${instanceName}-LogicApp'
 param imageGalleryName string = 'AMP${instanceName}Gallery'
+param websiteRunFromPackageUrl string
 
 var solutionTag = 'MonitorStarterPacks'
 var solutionTagComponents = 'MonitorStarterPacksComponents'
@@ -70,6 +71,10 @@ var deployIaaSPack = contains(packs, 'all') || contains(packs, 'iaas')
 var deployPaaSPack = contains(packs, 'all') || contains(packs, 'paas')
 var deployPlatformPack = contains(packs, 'all') || contains(packs, 'platform')
 
+var actionGroupCreate = actionGroupConfig.createMode == 'default'
+var logAnalyticsCreate = logAnalyticsConfig.createMode == 'default'
+var storageAccountCreate = storageAccountConfig.createMode == 'default'
+
 module rg 'modules/resourceGroup.bicep' = {
   scope: subscription(subscriptionId)
   name: 'resourceGroup-deployment'
@@ -80,23 +85,27 @@ module rg 'modules/resourceGroup.bicep' = {
   }
 }
 
-module storageAccount 'modules/storageAccount.bicep' = {
+module storageAccount 'modules/storageAccount.bicep' = if (storageAccountCreate) {
   scope: subscription(subscriptionId)
   name: 'storageAccount-deployment'
   params: {
     location: location
     resourceGroupName: rg.outputs.name
-    storageAccountConfig: storageAccountConfig
+    storageAccountConfig: {
+      name: storageAccountConfig.name
+    }
     tags: unionTags
   }
 }
 
-module logAnalytics 'modules/logAnalytics.bicep' = {
+module logAnalytics 'modules/logAnalytics.bicep' = if (logAnalyticsCreate) {
   scope: subscription(subscriptionId)
   name: 'logAnalytics-deployment'
   params: {
     location: location
-    logAnalyticsConfig: logAnalyticsConfig
+    logAnalyticsConfig: {
+      name: logAnalyticsConfig.name
+    }
     resourceGroupName: rg.outputs.name
     tags: unionTags
   }
@@ -115,26 +124,26 @@ module AMAPolicy '../AMAPolicy/amapoliciesmg.bicep' = if (deployAMApolicy) {
   }
 }
 
-module discovery '../discovery/discovery.bicep' = if (deployDiscovery) {
-  name: 'DeployDiscovery-${instanceName}'
-  params: {
-    assignmentLevel: assignmentLevel
-    location: location
-    resourceGroupName: rg.outputs.name
-    solutionTag: solutionTag
-    solutionVersion: solutionVersion
-    subscriptionId: subscriptionId
-    dceId: backend.outputs.dceId
-    imageGalleryName: imageGalleryName
-    lawResourceId: logAnalytics.outputs.resourceId
-    mgname: managementGroupName
-    storageAccountname: storageAccount.outputs.name
-    tableName: 'Discovery'
-    userManagedIdentityResourceId: backend.outputs.packsUserManagedResourceId
-    Tags: unionTags
-    instanceName: instanceName
-  }
-}
+// module discovery '../discovery/discovery.bicep' = if (deployDiscovery) {
+//   name: 'DeployDiscovery-${instanceName}'
+//   params: {
+//     assignmentLevel: assignmentLevel
+//     location: location
+//     resourceGroupName: rg.outputs.name
+//     solutionTag: solutionTag
+//     solutionVersion: solutionVersion
+//     subscriptionId: subscriptionId
+//     dceId: backend.outputs.dceId
+//     imageGalleryName: imageGalleryName
+//     lawResourceId: logAnalytics.outputs.resourceId
+//     mgname: managementGroupName
+//     storageAccountname: storageAccount.outputs.name
+//     tableName: 'Discovery'
+//     userManagedIdentityResourceId: backend.outputs.packsUserManagedResourceId
+//     Tags: unionTags
+//     instanceName: instanceName
+//   }
+// }
 
 module grafana 'modules/grafana.bicep' = {
   scope: subscription(subscriptionId)
@@ -148,60 +157,64 @@ module grafana 'modules/grafana.bicep' = {
   }
 }
 
-module backend '../backend/code/backend.bicep' = {
-  name: 'MonitoringPacks-backend-${instanceName}'
-  params: {
-    _artifactsLocation: _artifactsLocation
-    _artifactsLocationSasToken: _artifactsLocationSasToken
-    appInsightsLocation: appInsightsLocationOveride
-    //    currentUserIdObject: currentUserIdObject
-    functionname: functionAppName
-    lawresourceid: logAnalytics.outputs.resourceId
-    location: location
-    mgname: managementGroupName
-    resourceGroupName: rg.outputs.name
-    Tags: unionTags
-    storageAccountName: storageAccount.outputs.name
-    subscriptionId: subscriptionId
-    solutionTag: solutionTag
-    imageGalleryName: imageGalleryName
-    logicappname: logicAppName
-    instanceName: instanceName
-    collectTelemetry: false
-  }
-}
-
-module actionGroup 'modules/actionGroup.bicep' = {
+module actionGroup 'modules/actionGroup.bicep' = if (actionGroupCreate) {
   scope: subscription(subscriptionId)
   name: 'actionGroup-deployment'
   params: {
-    actionGroupConfig: actionGroupConfig
+    actionGroupConfig: {
+      name: actionGroupConfig.name
+      emailReceiver: actionGroupConfig.emailReceiver
+      emailReceiversEmail: actionGroupConfig.emailReceiversEmail
+      location: actionGroupConfig.location
+    }
     location: location
     resourceGroupName: rg.outputs.name
     tags: unionTags
   }
 }
 
-module iaasPack '../../Packs/IaaS/AllIaaSPacks.bicep' = if (deployIaaSPack) {
-  name: 'deployIaaSPack'
+// BACKEND
+module backend 'modules/backend.bicep' = {
+  name: 'monitoringPacks-backend'
   params: {
-    location: location
-    actionGroupResourceId: actionGroup.outputs.resourceId
-    assignmentLevel: assignmentLevel
-    customerTags: tags
-    dceId: backend.outputs.dceId
+    _artifactsLocation: _artifactsLocation
+    _artifactsLocationSasToken: _artifactsLocationSasToken
+    appInsightsLocation: appInsightsLocationOveride
+    functionAppName: functionAppName
     imageGalleryName: imageGalleryName
     instanceName: instanceName
-    mgname: managementGroupName
+    workspaceResourceId: logAnalyticsCreate ? logAnalytics.outputs.resourceId : logAnalyticsConfig.resourceId
+    location: location
+    logicAppName: logicAppName
+    managementGroupName: managementGroupName
     resourceGroupId: rg.outputs.resourceId
     solutionTag: solutionTag
-    solutionVersion: solutionVersion
-    storageAccountName: storageAccount.outputs.name
-    subscriptionId: subscriptionId
-    userManagedIdentityResourceId: backend.outputs.packsUserManagedResourceId
-    workspaceId: logAnalytics.outputs.resourceId
+    storageAccountResourceId: actionGroupCreate ? storageAccount.outputs.resourceId : storageAccountConfig.resourceId
+    tags: unionTags
+    websiteRunFromPackageUrl: websiteRunFromPackageUrl
   }
 }
+
+// module iaasPack '../../Packs/IaaS/AllIaaSPacks.bicep' = if (deployIaaSPack) {
+//   name: 'deployIaaSPack'
+//   params: {
+//     location: location
+//     actionGroupResourceId: actionGroupCreate ? actionGroup.outputs.resourceId : actionGroupConfig.resourceId
+//     assignmentLevel: assignmentLevel
+//     customerTags: tags
+//     dceId: backend.outputs.dceId
+//     imageGalleryName: imageGalleryName
+//     instanceName: instanceName
+//     mgname: managementGroupName
+//     resourceGroupId: rg.outputs.resourceId
+//     solutionTag: solutionTag
+//     solutionVersion: solutionVersion
+//     storageAccountName: actionGroupCreate ? storageAccount.outputs.name : split(storageAccountConfig.resourceId, '/')[8]
+//     subscriptionId: subscriptionId
+//     userManagedIdentityResourceId: backend.outputs.packsUserManagedResourceId
+//     workspaceId: logAnalyticsCreate ? logAnalytics.outputs.resourceId : logAnalyticsConfig.resourceId
+//   }
+// }
 
 // module paasPack '../../Packs/PaaS/AllPaaSPacks.bicep' = if (deployPaaSPack) {
 //   name: 'deployPaaSPack'

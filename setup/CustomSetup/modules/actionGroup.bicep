@@ -5,16 +5,11 @@ param actionGroupConfig actionGroupType
 param location string
 param tags object
 
-var createActionGroup = actionGroupConfig.createMode == 'default'
-
-var id = createActionGroup ? actionGroupCreate.outputs.resourceId : actionGroupExisting.outputs.resourceId
-var name = createActionGroup ? actionGroupConfig.name : actionGroupExisting.outputs.name
-
 resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' existing = {
   name: resourceGroupName
 }
 
-module actionGroupCreate 'br/public:avm/res/insights/action-group:0.2.5' = if (createActionGroup) {
+module actionGroup 'br/public:avm/res/insights/action-group:0.2.5' = {
   name: 'actionGroup'
   scope: rg
   params: {
@@ -33,26 +28,14 @@ module actionGroupCreate 'br/public:avm/res/insights/action-group:0.2.5' = if (c
   }
 }
 
-module actionGroupExisting 'actionGroupExisting.bicep' = if (!createActionGroup) {
-  name: 'actionGroupExisting'
-  params: {
-    actionGroupResourceId: actionGroupConfig.resourceId
-  }
-}
+output resourceId string = actionGroup.outputs.resourceId
+output name string = actionGroup.outputs.name
 
-output resourceId string = id
-output name string = name
+func parseId(resourceId string) string[] => split(resourceId, '/')
 
-type actionGroupDefaultType = {
+type actionGroupType = {
   name: string
   location: string?
   emailReceiver: string
   emailReceiversEmail: string
-  createMode: 'default'
 }
-type actionGroupExistingType = {
-  createMode: 'existing'
-  resourceId: string
-}
-@discriminator('createMode')
-type actionGroupType = actionGroupDefaultType | actionGroupExistingType

@@ -5,43 +5,23 @@ param logAnalyticsConfig logAnalyticsType
 param location string
 param tags object
 
-var createLogAnalytics = logAnalyticsConfig.createMode == 'default'
-
-var id = createLogAnalytics ? logAnalyticsCreate.outputs.lawresourceid : logAnalyticsExisting.outputs.resourceId
-var name = createLogAnalytics ? logAnalyticsConfig.name : logAnalyticsExisting.outputs.name
-
 resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' existing = {
   name: resourceGroupName
 }
 
-module logAnalyticsCreate '../../../modules/LAW/law.bicep' = if (createLogAnalytics) {
-  name: 'logAnalytics-Deployment'
+module logAnalytics 'br/public:avm/res/operational-insights/workspace:0.3.5' = {
   scope: rg
+  name: 'logAnalytics'
   params: {
+    name: logAnalyticsConfig.name
     location: location
-    logAnalyticsWorkspaceName: logAnalyticsConfig.name
-    Tags: tags
-    createNewLogAnalyticsWS: true
+    tags: tags
   }
 }
 
-module logAnalyticsExisting 'logAnalyticsExisting.bicep' = if (!createLogAnalytics) {
-  name: 'logAnalyticsExisting'
-  params: {
-    logAnalyticsResourceId: logAnalyticsConfig.resourceId
-  }
-}
+output resourceId string = logAnalytics.outputs.resourceId
+output name string = logAnalytics.outputs.name
 
-output resourceId string = id
-output name string = name
-
-type LogAnalyticsDefaultType = {
-  createMode: 'default'
+type logAnalyticsType = {
   name: string
 }
-type LogAnalyticsExistingType = {
-  createMode: 'existing'
-  resourceId: string
-}
-@discriminator('createMode')
-type logAnalyticsType = LogAnalyticsDefaultType | LogAnalyticsExistingType
