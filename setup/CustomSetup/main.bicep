@@ -4,7 +4,6 @@ param _artifactsLocation string = 'https://raw.githubusercontent.com/JCoreMS/Azu
 @secure()
 param _artifactsLocationSasToken string = ''
 
-param managementGroupName string = managementGroup().name
 param subscriptionId string
 
 param resourceGroupConfig resourceGroupType = {
@@ -186,7 +185,6 @@ module backend 'modules/backend.bicep' = {
     workspaceResourceId: logAnalyticsCreate ? logAnalytics.outputs.resourceId : logAnalyticsConfig.resourceId
     location: location
     logicAppName: logicAppName
-    managementGroupName: managementGroupName
     resourceGroupId: rg.outputs.resourceId
     solutionTag: solutionTag
     storageAccountResourceId: actionGroupCreate ? storageAccount.outputs.resourceId : storageAccountConfig.resourceId

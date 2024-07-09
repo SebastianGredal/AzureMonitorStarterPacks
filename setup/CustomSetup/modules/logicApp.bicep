@@ -13,7 +13,6 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' existing = {
   name: split(functionAppResourceId, '/')[8]
   scope: resourceGroup(split(functionAppResourceId, '/')[2], split(functionAppResourceId, '/')[4])
 }
-
 module logicAppConnection 'br/public:avm/res/web/connection:0.2.0' = {
   name: 'logicAppConnection'
   params: {

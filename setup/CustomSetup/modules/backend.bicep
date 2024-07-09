@@ -3,21 +3,16 @@ targetScope = 'managementGroup'
 @secure()
 param _artifactsLocationSasToken string
 param _artifactsLocation string
-@description('The name for the function app that you wish to create')
 param functionAppName string = 'func-amp-${instanceName}'
 param logicAppName string = 'logic-amp-${instanceName}'
 param instanceName string
-//param currentUserIdObject string
 param location string
 param storageAccountResourceId string
 param solutionTag string
-//param kvname string
 param workspaceResourceId string
 param appInsightsLocation string
-@description('UTC timestamp used to create distinct deployment scripts for each deployment')
 param tags object
 param resourceGroupId string
-param managementGroupName string
 param imageGalleryName string
 param websiteRunFromPackageUrl string
 
