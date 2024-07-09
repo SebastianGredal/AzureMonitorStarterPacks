@@ -64,7 +64,7 @@ var tempTags = {
   solutionVersion: solutionVersion
   instanceName: instanceName
 }
-var unionTags = (tags == {}) ? tempTags : union(tempTags, tags)
+var unionTags = empty(tags) ? tempTags : union(tempTags, tags)
 
 var deployIaaSPack = contains(packs, 'all') || contains(packs, 'iaas')
 var deployPaaSPack = contains(packs, 'all') || contains(packs, 'paas')

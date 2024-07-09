@@ -43,6 +43,9 @@ module logicApp 'br/public:avm/res/logic/workflow:0.2.6' = {
   name: 'logicApp'
   params: {
     name: logicAppName
+    managedIdentities: {
+      systemAssigned: true
+    }
     definitionParameters: {
       '$connections': {
         defaultValue: {}
@@ -200,5 +203,14 @@ module logicApp 'br/public:avm/res/logic/workflow:0.2.6' = {
         }
       }
     }
+  }
+}
+
+module keyVaultSecretsUser 'br/public:avm/ptn/authorization/resource-role-assignment:0.1.1' = {
+  name: 'keyVaultSecretsUser'
+  params: {
+    principalId: logicApp.outputs.systemAssignedMIPrincipalId
+    resourceId: keyVault.id
+    roleDefinitionId: '4633458b-17de-408a-b874-0445c86b69e6'
   }
 }

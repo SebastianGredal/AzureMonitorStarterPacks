@@ -26,7 +26,7 @@ var packPolicyRoleDefinitionIds = [
   // '/providers/Microsoft.Authorization/roleDefinitions/4a9ae827-6dc8-4573-8ac7-8239d42aa03f' // Tag Contributor
 ]
 
-var backendFunctionRoleDefinitionIds = [
+var functionRoleDefinitionIds = [
   '4a9ae827-6dc8-4573-8ac7-8239d42aa03f' // Tag Contributor
   '9980e02c-c2be-4d73-94e8-173b1dc7cf3c' // VM Contributor
   '48b40c6e-82e0-4eb3-90d5-19e40f49b624' // Arc Contributor
@@ -35,9 +35,6 @@ var backendFunctionRoleDefinitionIds = [
   '749f88d5-cbae-40b8-bcfc-e573ddc772fa' // Monitoring Contributor
   '36243c78-bf99-498c-9df9-86d9f8d28608' // policy contributor
   'f1a07417-d97a-45cb-824c-7a7467783830' // Managed identity Operator
-]
-var logicappRequiredRoleassignments = [
-  '4633458b-17de-408a-b874-0445c86b69e6' //keyvault reader role
 ]
 
 var resourceGroupName = split(resourceGroupId, '/')[4]
@@ -130,7 +127,7 @@ module functionUserAssignedIdentity 'br/public:avm/res/managed-identity/user-ass
 }
 
 module functionUMIManagementGroupRoleAssignment 'role-assignment/management-group.bicep' = [
-  for (item, index) in backendFunctionRoleDefinitionIds: {
+  for (item, index) in functionRoleDefinitionIds: {
     name: 'AMP-${instanceName}-UMI-Function-Role-${index}'
     params: {
       principalId: functionUserAssignedIdentity.outputs.principalId
