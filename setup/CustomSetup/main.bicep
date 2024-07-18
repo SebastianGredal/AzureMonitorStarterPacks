@@ -27,12 +27,13 @@ param storageAccountConfig storageAccountType = {
   createMode: 'default'
 }
 
+param keyVaultConfig keyVaultType = {
+  createMode: 'default'
+  name: 'kv-amp-${instanceName}'
+}
+
 param location string = deployment().location
 param assignmentLevel assignmentLevelType = 'managementGroup'
-
-param deployAMApolicy bool
-//param currentUserIdObject string // This is to automatically assign permissions to Grafana.
-//param functionName string
 
 param instanceName string
 param appInsightsLocationOveride string = location
@@ -51,10 +52,12 @@ param packs packsType = [
   'all'
 ]
 param deployDiscovery bool = false
-param functionAppName string = 'AMP-${instanceName}-${split(subscriptionId, '-')[0]}-Function'
-param logicAppName string = 'AMP-${instanceName}-LogicApp'
-param imageGalleryName string = 'AMP${instanceName}Gallery'
-param websiteRunFromPackageUrl string
+param functionAppName string = 'func-amp-${instanceName}'
+param logicAppName string = 'logic-amp-${instanceName}'
+param galleryName string = 'galamp${instanceName}'
+
+param packsUserAssignedIdentityName string = 'id-packs'
+param functionUserAssignedIdentityName string = 'id-func'
 
 var solutionTag = 'MonitorStarterPacks'
 var solutionTagComponents = 'MonitorStarterPacksComponents'
@@ -70,58 +73,48 @@ var deployIaaSPack = contains(packs, 'all') || contains(packs, 'iaas')
 var deployPaaSPack = contains(packs, 'all') || contains(packs, 'paas')
 var deployPlatformPack = contains(packs, 'all') || contains(packs, 'platform')
 
-var actionGroupCreate = actionGroupConfig.createMode == 'default'
-var logAnalyticsCreate = logAnalyticsConfig.createMode == 'default'
-var storageAccountCreate = storageAccountConfig.createMode == 'default'
-
-module rg 'modules/resourceGroup.bicep' = {
+module rg 'br/public:avm/res/resources/resource-group:0.2.4' = {
   scope: subscription(subscriptionId)
   name: 'resourceGroup-deployment'
   params: {
+    name: resourceGroupConfig.name
     location: location
-    resourceGroupConfig: resourceGroupConfig
     tags: unionTags
   }
 }
 
-module storageAccount 'modules/storageAccount.bicep' = if (storageAccountCreate) {
-  scope: subscription(subscriptionId)
-  name: 'storageAccount-deployment'
+module core 'modules/core.bicep' = {
+  name: 'core-deployment'
   params: {
+    actionGroupConfig: actionGroupConfig
+    functionUserAssignedIdentityName: functionUserAssignedIdentityName
+    grafanaConfig: grafanaConfig
+    keyVaultConfig: keyVaultConfig
     location: location
+    logAnalyticsConfig: logAnalyticsConfig
+    packsUserAssignedIdentityName: packsUserAssignedIdentityName
     resourceGroupName: rg.outputs.name
-    storageAccountConfig: {
-      name: storageAccountConfig.name
-    }
-    tags: unionTags
-  }
-}
-
-module logAnalytics 'modules/logAnalytics.bicep' = if (logAnalyticsCreate) {
-  scope: subscription(subscriptionId)
-  name: 'logAnalytics-deployment'
-  params: {
-    location: location
-    logAnalyticsConfig: {
-      name: logAnalyticsConfig.name
-    }
-    resourceGroupName: rg.outputs.name
-    tags: unionTags
-  }
-}
-
-module AMAPolicy '../AMAPolicy/amapoliciesmg.bicep' = if (deployAMApolicy) {
-  name: 'DeployAMAPolicy'
-  params: {
-    assignmentLevel: assignmentLevel
-    location: location
-    resourceGroupName: rg.outputs.name
-    solutionTag: solutionTagComponents
-    solutionVersion: solutionVersion
+    solutionTag: solutionTag
+    storageAccountConfig: storageAccountConfig
     subscriptionId: subscriptionId
-    Tags: unionTags
+    tags: unionTags
   }
 }
+
+// deployment of AMA Policies should be handled by epac
+//param deployAMApolicy bool
+// module AMAPolicy '../AMAPolicy/amapoliciesmg.bicep' = if (deployAMApolicy) {
+//   name: 'DeployAMAPolicy'
+//   params: {
+//     assignmentLevel: assignmentLevel
+//     location: location
+//     resourceGroupName: rg.outputs.name
+//     solutionTag: solutionTagComponents
+//     solutionVersion: solutionVersion
+//     subscriptionId: subscriptionId
+//     Tags: unionTags
+//   }
+// }
 
 // module discovery '../discovery/discovery.bicep' = if (deployDiscovery) {
 //   name: 'DeployDiscovery-${instanceName}'
@@ -132,64 +125,38 @@ module AMAPolicy '../AMAPolicy/amapoliciesmg.bicep' = if (deployAMApolicy) {
 //     solutionTag: solutionTag
 //     solutionVersion: solutionVersion
 //     subscriptionId: subscriptionId
-//     dceId: backend.outputs.dceId
-//     imageGalleryName: imageGalleryName
-//     lawResourceId: logAnalytics.outputs.resourceId
-//     mgname: managementGroupName
-//     storageAccountname: storageAccount.outputs.name
+//     dceId: backend.outputs.dataCollectionEndpointResourceId
+//     imageGalleryName: core.outputs.galleryResourceId
+//     lawResourceId: core.outputs.logAnalyticsResourceId
+//     mgname: managementGroup().name
+//     storageAccountname: core.outputs.storageAccountResourceId
 //     tableName: 'Discovery'
-//     userManagedIdentityResourceId: backend.outputs.packsUserManagedResourceId
+//     userManagedIdentityResourceId: core.outputs.packsUserAssignedIdentityResourceId
 //     Tags: unionTags
 //     instanceName: instanceName
 //   }
 // }
 
-module grafana 'modules/grafana.bicep' = {
-  scope: subscription(subscriptionId)
-  name: 'grafana-deployment'
-  params: {
-    grafanaConfig: grafanaConfig
-    location: location
-    resourceGroupName: rg.outputs.name
-    solutionTag: solutionTag
-    tags: unionTags
-  }
-}
-
-module actionGroup 'modules/actionGroup.bicep' = if (actionGroupCreate) {
-  scope: subscription(subscriptionId)
-  name: 'actionGroup-deployment'
-  params: {
-    actionGroupConfig: {
-      name: actionGroupConfig.name
-      emailReceiver: actionGroupConfig.emailReceiver
-      emailReceiversEmail: actionGroupConfig.emailReceiversEmail
-      location: actionGroupConfig.location
-    }
-    location: location
-    resourceGroupName: rg.outputs.name
-    tags: unionTags
-  }
-}
-
 // BACKEND
 module backend 'modules/backend.bicep' = {
   name: 'monitoringPacks-backend'
+  scope: subscription(subscriptionId)
   params: {
     _artifactsLocation: _artifactsLocation
     _artifactsLocationSasToken: _artifactsLocationSasToken
     appInsightsLocation: appInsightsLocationOveride
     functionAppName: functionAppName
-    imageGalleryName: imageGalleryName
+    functionUserAssignedIdentityResourceId: core.outputs.functionUserAssignedIdentityResourceId
     instanceName: instanceName
-    workspaceResourceId: logAnalyticsCreate ? logAnalytics.outputs.resourceId : logAnalyticsConfig.resourceId
+    keyVaultResourceId: core.outputs.keyVaultResourceId
     location: location
     logicAppName: logicAppName
-    resourceGroupId: rg.outputs.resourceId
+    packsUserAssignedIdentityResourceId: core.outputs.packsUserAssignedIdentityResourceId
+    resourceGroupName: rg.outputs.name
     solutionTag: solutionTag
-    storageAccountResourceId: actionGroupCreate ? storageAccount.outputs.resourceId : storageAccountConfig.resourceId
+    storageAccountResourceId: core.outputs.storageAccountResourceId
     tags: unionTags
-    websiteRunFromPackageUrl: websiteRunFromPackageUrl
+    workspaceResourceId: core.outputs.logAnalyticsResourceId
   }
 }
 
@@ -252,7 +219,7 @@ module backend 'modules/backend.bicep' = {
 // }
 
 type resourceGroupType = {
-  createMode: 'default' | 'existing'
+  createMode: 'default'
   name: string
 }
 
@@ -269,8 +236,9 @@ type logAnalyticsType = LogAnalyticsDefaultType | LogAnalyticsExistingType
 
 type grafanaType = {
   location: string?
+  @maxLength(23)
   name: string
-  createMode: 'default' | 'existing'
+  createMode: 'default'
 }
 type storageAccountDefaultType = {
   createMode: 'default'
@@ -284,6 +252,7 @@ type storageAccountExistingType = {
 type storageAccountType = storageAccountDefaultType | storageAccountExistingType
 
 type actionGroupDefaultType = {
+  @maxLength(12)
   name: string
   location: string?
   emailReceiver: string
@@ -299,3 +268,18 @@ type actionGroupType = actionGroupDefaultType | actionGroupExistingType
 
 type packsType = ('all' | 'iaas' | 'paas' | 'platform')[]
 type assignmentLevelType = 'managementGroup' | 'subscription'
+
+type keyVaultDefaultType = {
+  createMode: 'default'
+  name: string
+}
+type keyVaultRecoverType = {
+  createMode: 'recover'
+  name: string
+}
+type keyVaultExistingType = {
+  createMode: 'existing'
+  resourceId: string
+}
+@discriminator('createMode')
+type keyVaultType = keyVaultDefaultType | keyVaultExistingType | keyVaultRecoverType

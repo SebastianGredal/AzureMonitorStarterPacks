@@ -7,12 +7,19 @@ param resourceGroupConfig = {
   name: 'rg-amp-${instanceName}'
   createMode: 'default'
 }
+param actionGroupConfig = {
+  name: 'ag-amp-${take(instanceName, 5)}'
+  location: 'global'
+  emailReceiver: 'Sebastian'
+  emailReceiversEmail: 'segr@anquellion.com'
+  createMode: 'default'
+}
 param logAnalyticsConfig = {
   name: 'law-amp-${instanceName}'
   createMode: 'default'
 }
 param grafanaConfig = {
-  name: 'grafana-amp-${instanceName}'
+  name: 'amg-amp-${instanceName}'
   createMode: 'default'
   location: location
 }
@@ -20,24 +27,19 @@ param storageAccountConfig = {
   name: 'saamp${instanceName}'
   createMode: 'default'
 }
-param location = 'westeurope'
-param assignmentLevel = 'managementGroup'
-param deployAMApolicy = false
-param instanceName = 'moni'
-param appInsightsLocationOveride = location
-param actionGroupConfig = {
-  name: 'ag-amp-${instanceName}'
-  location: 'global'
-  emailReceiver: 'Sebastian'
-  emailReceiversEmail: 'segr@anquellion.com'
+param keyVaultConfig = {
+  name: 'kv-amp-${instanceName}'
   createMode: 'default'
 }
+param location = 'swedencentral'
+param assignmentLevel = 'managementGroup'
+param instanceName = take(uniqueString(subscriptionId), 6)
+param appInsightsLocationOveride = location
 param tags = {}
 param packs = [
   'all'
 ]
 param deployDiscovery = false
-param functionAppName = 'AMP-${instanceName}-${split(subscriptionId, '-')[0]}-Function'
-param logicAppName = 'AMP-${instanceName}-LogicApp'
-param imageGalleryName = 'AMP${instanceName}Gallery'
-param websiteRunFromPackageUrl = ''
+param functionAppName = 'func-amp-${instanceName}'
+param logicAppName = 'logic-amp-${instanceName}'
+param galleryName = 'galamp${instanceName}'

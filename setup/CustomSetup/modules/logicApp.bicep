@@ -1,8 +1,9 @@
-param subscriptionId string = subscription().id
+param subscriptionId string = subscription().subscriptionId
 param location string = resourceGroup().location
 param keyVaultResourceId string
 param logicAppName string
 param functionAppResourceId string
+param userAssignedIdentityResourceId string
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: split(keyVaultResourceId, '/')[8]
@@ -13,14 +14,30 @@ resource functionApp 'Microsoft.Web/sites@2023-12-01' existing = {
   name: split(functionAppResourceId, '/')[8]
   scope: resourceGroup(split(functionAppResourceId, '/')[2], split(functionAppResourceId, '/')[4])
 }
+
+resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' existing = {
+  name: split(userAssignedIdentityResourceId, '/')[8]
+  scope: resourceGroup(split(userAssignedIdentityResourceId, '/')[2], split(userAssignedIdentityResourceId, '/')[4])
+}
+
+module defaultFunctionKey 'key-vault-secrets.bicep' = {
+  scope: resourceGroup(split(keyVaultResourceId, '/')[2], split(keyVaultResourceId, '/')[4])
+  name: 'defaultFunctionKey'
+  params: {
+    keyVaultName: keyVault.name
+    name: 'FunctionKey'
+    value: listKeys('${functionApp.id}/host/default', '2023-12-01').functionKeys.default
+  }
+}
+
 module logicAppConnection 'br/public:avm/res/web/connection:0.2.0' = {
   name: 'logicAppConnection'
   params: {
-    displayName: 'KeyVault'
+    displayName: keyVault.name
     name: 'keyvault'
     location: location
     api: {
-      name: 'keyvault'
+      name: keyVault.name
       displayName: 'Azure Key Vault'
       iconUri: 'https://connectoricons-prod.azureedge.net/releases/v1.0.1656/1.0.1656.3432/keyvault/icon.png'
       brandColor: '#0079d6'
@@ -40,16 +57,32 @@ module logicAppConnection 'br/public:avm/res/web/connection:0.2.0' = {
 }
 
 module logicApp 'br/public:avm/res/logic/workflow:0.2.6' = {
+  dependsOn: [
+    defaultFunctionKey
+  ]
   name: 'logicApp'
   params: {
     name: logicAppName
     managedIdentities: {
-      systemAssigned: true
+      userAssignedResourceIds: [
+        userAssignedIdentityResourceId
+      ]
     }
     definitionParameters: {
       '$connections': {
-        defaultValue: {}
-        type: 'Object'
+        value: {
+          keyvault: {
+            id: '/subscriptions/${subscriptionId}/providers/Microsoft.Web/locations/${location}/managedApis/keyvault'
+            connectionId: logicAppConnection.outputs.resourceId
+            connectionName: logicAppConnection.outputs.name
+            connectionProperties: {
+              authentication: {
+                type: 'ManagedServiceIdentity'
+                identity: userAssignedIdentity.id
+              }
+            }
+          }
+        }
       }
     }
     workflowTriggers: {
@@ -62,23 +95,6 @@ module logicApp 'br/public:avm/res/logic/workflow:0.2.6' = {
       }
     }
     workflowActions: {
-      Get_Secret: {
-        runAfter: {
-          Parse_JSON: [
-            'Succeeded'
-          ]
-        }
-        type: 'ApiConnection'
-        inputs: {
-          host: {
-            connection: {
-              name: '@parameters(\'$connections\')[\'keyvault\'][\'connectionId\']'
-            }
-          }
-          method: 'get'
-          path: '/secrets/@{encodeURIComponent(\'FunctionKey\')}/value'
-        }
-      }
       Parse_JSON: {
         runAfter: {}
         type: 'ParseJson'
@@ -98,6 +114,23 @@ module logicApp 'br/public:avm/res/logic/workflow:0.2.6' = {
           }
         }
       }
+      Get_Secret: {
+        runAfter: {
+          Parse_JSON: [
+            'Succeeded'
+          ]
+        }
+        type: 'ApiConnection'
+        inputs: {
+          host: {
+            connection: {
+              name: '@parameters(\'$connections\')[\'keyvault\'][\'connectionId\']'
+            }
+          }
+          method: 'get'
+          path: '/secrets/@{encodeURIComponent(\'FunctionKey\')}/value'
+        }
+      }
       Switch: {
         runAfter: {
           Get_Secret: [
@@ -113,9 +146,9 @@ module logicApp 'br/public:avm/res/logic/workflow:0.2.6' = {
                 type: 'Function'
                 inputs: {
                   body: '@body(\'Parse_JSON\')?[\'functionBody\']'
-                  Headers: {
-                    'x-functions-key': functionApp.listKeys().functionKeys.default
-                  }
+                  // Headers: {
+                  //   'x-functions-key': listKeys('${functionApp.id}/host/default', '2023-12-01').functionKeys.default
+                  // }
                   function: {
                     id: '${functionApp.id}/functions/tagmgmt'
                   }
@@ -190,27 +223,9 @@ module logicApp 'br/public:avm/res/logic/workflow:0.2.6' = {
     }
     workflowParameters: {
       '$connections': {
-        value: {
-          keyvault: {
-            id: logicAppConnection.outputs.resourceId
-            connectionName: logicAppConnection.outputs.name
-            connectionProperties: {
-              authentication: {
-                type: 'ManagedServiceIdentity'
-              }
-            }
-          }
-        }
+        type: 'Object'
+        defaultValue: {}
       }
     }
-  }
-}
-
-module keyVaultSecretsUser 'br/public:avm/ptn/authorization/resource-role-assignment:0.1.1' = {
-  name: 'keyVaultSecretsUser'
-  params: {
-    principalId: logicApp.outputs.systemAssignedMIPrincipalId
-    resourceId: keyVault.id
-    roleDefinitionId: '4633458b-17de-408a-b874-0445c86b69e6'
   }
 }
