@@ -137,6 +137,27 @@ module core 'modules/core.bicep' = {
 //   }
 // }
 
+module discovery 'modules/discovery/main.bicep' = if (deployDiscovery) {
+  name: 'discovery'
+  params: {
+    functionUserAssignedIdentityResourceId: core.outputs.functionUserAssignedIdentityResourceId
+    packsUserAssignedIdentityResourceId: core.outputs.packsUserAssignedIdentityResourceId
+    solutionTag: solutionTag
+    tableName: 'Discovery'
+    assignmentLevel: assignmentLevel
+    galleryName: galleryName
+    location: location
+    logAnalyticsResourceId: core.outputs.logAnalyticsResourceId
+    resourceGroupId: rg.outputs.resourceId
+    storageAccountContainerName: 'discovery'
+    storageAccountResourceId: core.outputs.storageAccountResourceId
+    tags: unionTags
+    dataCollectionEndpointResourceId: backend.outputs.dataCollectionEndpointResourceId
+    subscriptionId: subscriptionId
+    instanceName: instanceName
+  }
+}
+
 // BACKEND
 module backend 'modules/backend.bicep' = {
   name: 'monitoringPacks-backend'

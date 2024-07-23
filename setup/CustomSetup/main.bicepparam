@@ -39,7 +39,7 @@ param tags = {}
 param packs = [
   'all'
 ]
-param deployDiscovery = false
+param deployDiscovery = true
 param functionAppName = 'func-amp-${instanceName}'
 param logicAppName = 'logic-amp-${instanceName}'
 param galleryName = 'galamp${instanceName}'

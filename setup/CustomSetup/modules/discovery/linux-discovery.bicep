@@ -5,7 +5,7 @@ param storageAccountResourceId string
 param storageAccountContainerName string
 param fileName string = 'discover'
 param galleryResourceId string
-param galleryApplicationName string = 'windiscovery'
+param galleryApplicationName string = 'linuxdiscovery'
 param location string
 param solutionTag string
 param assignmentLevel string
@@ -15,7 +15,7 @@ param dataCollectionEndpointResourceId string
 param tags object
 param tableName string
 param logAnalyticsResourceId string
-param packtag string = 'WinDisc'
+param packtag string = 'LxDisc'
 param instanceName string
 
 param time string = utcNow()
@@ -52,8 +52,8 @@ resource storageAccountContainer 'Microsoft.Storage/storageAccounts/blobServices
   parent: storageAccountBlobService
 }
 
-module windowsDiscoveryZipUpload 'br/public:avm/res/resources/deployment-script:0.2.4' = {
-  name: 'windowsDiscoveryZipUpload'
+module linuxDiscoveryZipUpload 'br/public:avm/res/resources/deployment-script:0.2.4' = {
+  name: 'linuxDiscoveryZipUpload'
   scope: resourceGroup(split(storageAccountResourceId, '/')[2], split(storageAccountResourceId, '/')[4])
   params: {
     managedIdentities: {
@@ -63,7 +63,7 @@ module windowsDiscoveryZipUpload 'br/public:avm/res/resources/deployment-script:
     }
     kind: 'AzurePowerShell'
     azPowerShellVersion: '12.0'
-    name: 'windowsDiscoveryZipUpload'
+    name: 'linuxDiscoveryZipUpload'
     timeout: 'PT5M'
     cleanupPreference: 'Always'
     enableTelemetry: false
@@ -87,13 +87,13 @@ module windowsDiscoveryZipUpload 'br/public:avm/res/resources/deployment-script:
         }
         {
           name: 'CONTENT'
-          value: loadFileAsBase64('../../../discovery/Windows/discover.zip')
+          value: loadFileAsBase64('../../../discovery/Linux/discover.tar')
         }
       ]
     }
     scriptContent: '''
       $Location = Get-Location
-      $FileName = $Location.Path + "/$($env:FileName).zip"
+      $FileName = $Location.Path + "/$($env:FileName).tar"
       $Bytes = [System.Convert]::FromBase64String($env:CONTENT)
       [System.IO.File]::WriteAllBytes($FileName, $Bytes)
 
@@ -101,7 +101,7 @@ module windowsDiscoveryZipUpload 'br/public:avm/res/resources/deployment-script:
       $BlobSplat = @{
         File = $FileName
         Container = $env:ContainerName
-        Blob = $env:FileName + '.zip'
+        Blob = $env:FileName + '.tar'
         Context = $StorageAccount.Context
       }
       $Blob = Set-AzStorageBlobContent @BlobSplat -ErrorAction Stop -Force
@@ -114,37 +114,40 @@ module windowsDiscoveryZipUpload 'br/public:avm/res/resources/deployment-script:
 }
 
 module galleryApplicationVersion 'gallery-application-version.bicep' = {
+  name: 'linux-discovery-app-version'
   scope: resourceGroup(split(galleryResourceId, '/')[2], split(galleryResourceId, '/')[4])
-  name: 'win-discovery-app-version'
   params: {
+    location: location
     galleryApplicationName: galleryApplicationName
     galleryResourceId: galleryResourceId
-    installCommand: 'powershell -command "ren windiscovery ${fileName}.zip; expand-archive ./${fileName}.zip . ; ./install.ps1"'
-    location: location
-    mediaLink: '${windowsDiscoveryZipUpload.outputs.outputs.blobUri}?${storageAccount.listAccountSas(storageAccount.apiVersion, accountSasRequestBody).accountSasToken}'
-    packageFileName: '${fileName}.zip'
-    removeCommand: 'powershell -command "Unregister-ScheduledTask -TaskName \'Monstar Packs Discovery\' \'\\\'"'
+    installCommand: 'tar -xvf ${galleryApplicationName} && chmod +x ./install.sh && ./install.sh'
+    mediaLink: '${linuxDiscoveryZipUpload.outputs.outputs.blobUri}?${storageAccount.listAccountSas(storageAccount.apiVersion, accountSasRequestBody).accountSasToken}'
+    packageFileName: 'discover.tar'
+    removeCommand: '/opt/microsoft/discovery/uninstall.sh'
   }
 }
 
 module applicationPolicy 'vm-application-policy.bicep' = {
-  name: 'win-discovery-app-policy'
+  name: 'linux-discovery-app-policy'
   params: {
     packtag: packtag
     packtype: 'Discovery'
-    policyDescription: 'Install ${galleryApplicationName} to Windows VMs'
-    policyDisplayName: 'Install ${galleryApplicationName} to Windows VMs'
+    policyDescription: 'Install ${galleryApplicationName} to Linux VMs'
+    policyDisplayName: 'Install ${galleryApplicationName} to Linux VMs'
     policyName: 'Onboard-${galleryApplicationName}-VMs'
+    roledefinitionIds: [
+      '/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
+    ]
     solutionTag: solutionTag
     vmapplicationResourceId: galleryApplicationVersion.outputs.resourceId
   }
 }
 
 module applicationPolicyAssignment 'br/public:avm/ptn/authorization/policy-assignment:0.1.1' = {
-  name: 'win-discovery-app-policy-assignment-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
+  name: 'linux-discovery-app-policy-assignment-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
   params: {
-    displayName: 'Windows AMP ${galleryApplicationName}'
-    name: 'win-amp-app-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
+    displayName: 'Linux AMP ${galleryApplicationName}'
+    name: 'linux-amp-app-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
     policyDefinitionId: applicationPolicy.outputs.resourceId
     managementGroupId: managementGroup().name
     subscriptionId: assignmentLevel == 'managementGroup' ? '' : subscriptionId
@@ -156,10 +159,10 @@ module applicationPolicyAssignment 'br/public:avm/ptn/authorization/policy-assig
 
 module dataCollectionRule 'br/public:avm/res/insights/data-collection-rule:0.1.3' = {
   scope: resourceGroup(split(dataCollectionEndpointResourceId, '/')[2], split(dataCollectionEndpointResourceId, '/')[4])
-  name: 'win-discovery-dcr'
+  name: 'linux-discovery-dcr'
   params: {
-    name: 'win-discovery-dcr'
-    kind: 'Windows'
+    name: 'linux-discovery-dcr'
+    kind: 'Linux'
     dataFlows: [
       {
         streams: [
@@ -179,7 +182,7 @@ module dataCollectionRule 'br/public:avm/res/insights/data-collection-rule:0.1.3
             streamName
           ]
           filePatterns: [
-            'C:\\WindowsAzure\\Discovery\\*.csv'
+            '/opt/microsoft/discovery/*.csv'
           ]
           format: 'text'
           settings: {
@@ -220,24 +223,24 @@ module dataCollectionRule 'br/public:avm/res/insights/data-collection-rule:0.1.3
 }
 
 module dataCollectionRuleAssociationPolicy 'vm-association-policy.bicep' = {
-  name: 'win-discovery-dcr-association-policy'
+  name: 'linux-discovery-dcr-association-policy'
   params: {
     dataCollectionRuleResourceId: dataCollectionRule.outputs.resourceId
     instanceName: instanceName
     packtag: packtag
     packtype: 'Discovery'
-    policyDescription: 'Policy to associate ${dataCollectionRule.outputs.name} with Windows VMs tagged with ${packtag} tag'
-    policyDisplayName: 'Associate ${dataCollectionRule.outputs.name} with Windows VMs tagged with ${packtag} tag'
+    policyDescription: 'Policy to associate ${dataCollectionRule.outputs.name} with Linux VMs tagged with ${packtag} tag'
+    policyDisplayName: 'Associate ${dataCollectionRule.outputs.name} with Linux VMs tagged with ${packtag} tag'
     policyName: 'Associate-${dataCollectionRule.outputs.name}-${packtag}-vms'
     solutionTag: solutionTag
   }
 }
 
 module dataCollectionRuleAssociationPolicyAssignment 'br/public:avm/ptn/authorization/policy-assignment:0.1.1' = {
-  name: 'win-discovery-dcr-association-policy-assignment-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
+  name: 'linux-discovery-dcr-association-policy-assignment-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
   params: {
-    displayName: 'Windows AMP ${dataCollectionRule.outputs.name}'
-    name: 'win-amp-dcr-assoc-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
+    displayName: 'Linux AMP ${dataCollectionRule.outputs.name}'
+    name: 'linux-amp-dcr-assoc-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
     policyDefinitionId: dataCollectionRuleAssociationPolicy.outputs.resourceId
     managementGroupId: managementGroup().name
     subscriptionId: assignmentLevel == 'managementGroup' ? '' : subscriptionId
