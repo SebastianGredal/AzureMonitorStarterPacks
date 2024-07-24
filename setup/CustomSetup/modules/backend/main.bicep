@@ -47,7 +47,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' existing = {
   name: resourceGroupName
 }
 
-module storageAccountConnectionString 'key-vault-secrets.bicep' = {
+module storageAccountConnectionString '../key-vault-secrets.bicep' = {
   scope: resourceGroup(split(keyVaultResourceId, '/')[2], split(keyVaultResourceId, '/')[4])
   name: 'storageAccountConnectionString'
   params: {
@@ -68,6 +68,7 @@ module functionAppPlan 'br/public:avm/res/web/serverfarm:0.2.2' = {
     kind: 'Windows'
     location: location
     zoneRedundant: false
+    enableTelemetry: false
   }
 }
 
@@ -78,6 +79,7 @@ module functionApp 'br/public:avm/res/web/site:0.3.9' = {
     kind: 'functionapp'
     name: functionAppName
     serverFarmResourceId: functionAppPlan.outputs.resourceId
+    enableTelemetry: false
     location: location
     enabled: true
     httpsOnly: true
@@ -163,7 +165,7 @@ module functionAppZipDeployment 'br/public:avm/res/resources/deployment-script:0
         }
         {
           name: 'CONTENT'
-          value: loadFileAsBase64('../../backend/backend.zip')
+          value: loadFileAsBase64('../../../backend/backend.zip')
         }
       ]
     }
@@ -183,6 +185,7 @@ module appInsights 'br/public:avm/res/insights/component:0.3.1' = {
   name: 'appInsights'
   params: {
     name: 'appi-amp-${instanceName}'
+    enableTelemetry: false
     workspaceResourceId: workspaceResourceId
     location: appInsightsLocation
     tags: tags
@@ -190,24 +193,13 @@ module appInsights 'br/public:avm/res/insights/component:0.3.1' = {
 }
 
 // Workbooks
-module workbook '../../backend/code/modules/extendedworkbook.bicep' = {
+module workbook '../../../backend/code/modules/extendedworkbook.bicep' = {
   scope: rg
   name: 'workbook'
   params: {
     lawresourceid: workspaceResourceId
     location: location
     Tags: tags
-  }
-}
-
-module dataCollectionEndpoint 'br/public:avm/res/insights/data-collection-endpoint:0.1.3' = {
-  scope: rg
-  name: 'data-collection-endpoint'
-  params: {
-    name: 'dce-amp-${instanceName}-${location}'
-    location: location
-    enableTelemetry: false
-    publicNetworkAccess: 'Enabled'
   }
 }
 
@@ -225,5 +217,3 @@ module logicApp 'logicApp.bicep' = {
     location: location
   }
 }
-
-output dataCollectionEndpointResourceId string = dataCollectionEndpoint.outputs.resourceId

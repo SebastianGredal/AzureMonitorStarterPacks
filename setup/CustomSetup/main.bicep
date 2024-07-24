@@ -83,12 +83,13 @@ module rg 'br/public:avm/res/resources/resource-group:0.2.4' = {
   }
 }
 
-module core 'modules/core.bicep' = {
+module core 'modules/core/main.bicep' = {
   name: 'core-deployment'
   params: {
     actionGroupConfig: actionGroupConfig
     functionUserAssignedIdentityName: functionUserAssignedIdentityName
     grafanaConfig: grafanaConfig
+    instanceName: instanceName
     keyVaultConfig: keyVaultConfig
     location: location
     logAnalyticsConfig: logAnalyticsConfig
@@ -116,29 +117,8 @@ module core 'modules/core.bicep' = {
 //   }
 // }
 
-// module discovery '../discovery/discovery.bicep' = if (deployDiscovery) {
-//   name: 'DeployDiscovery-${instanceName}'
-//   params: {
-//     assignmentLevel: assignmentLevel
-//     location: location
-//     resourceGroupName: rg.outputs.name
-//     solutionTag: solutionTag
-//     solutionVersion: solutionVersion
-//     subscriptionId: subscriptionId
-//     dceId: backend.outputs.dataCollectionEndpointResourceId
-//     imageGalleryName: core.outputs.galleryResourceId
-//     lawResourceId: core.outputs.logAnalyticsResourceId
-//     mgname: managementGroup().name
-//     storageAccountname: core.outputs.storageAccountResourceId
-//     tableName: 'Discovery'
-//     userManagedIdentityResourceId: core.outputs.packsUserAssignedIdentityResourceId
-//     Tags: unionTags
-//     instanceName: instanceName
-//   }
-// }
-
 module discovery 'modules/discovery/main.bicep' = if (deployDiscovery) {
-  name: 'discovery'
+  name: 'discovery-deployment'
   params: {
     functionUserAssignedIdentityResourceId: core.outputs.functionUserAssignedIdentityResourceId
     packsUserAssignedIdentityResourceId: core.outputs.packsUserAssignedIdentityResourceId
@@ -152,15 +132,14 @@ module discovery 'modules/discovery/main.bicep' = if (deployDiscovery) {
     storageAccountContainerName: 'discovery'
     storageAccountResourceId: core.outputs.storageAccountResourceId
     tags: unionTags
-    dataCollectionEndpointResourceId: backend.outputs.dataCollectionEndpointResourceId
+    dataCollectionEndpointResourceId: core.outputs.dataCollectionEndpointResourceId
     subscriptionId: subscriptionId
     instanceName: instanceName
   }
 }
 
-// BACKEND
-module backend 'modules/backend.bicep' = {
-  name: 'monitoringPacks-backend'
+module backend 'modules/backend/main.bicep' = {
+  name: 'backend-deployment'
   scope: subscription(subscriptionId)
   params: {
     _artifactsLocation: _artifactsLocation
@@ -181,26 +160,26 @@ module backend 'modules/backend.bicep' = {
   }
 }
 
-// module iaasPack '../../Packs/IaaS/AllIaaSPacks.bicep' = if (deployIaaSPack) {
-//   name: 'deployIaaSPack'
-//   params: {
-//     location: location
-//     actionGroupResourceId: actionGroupCreate ? actionGroup.outputs.resourceId : actionGroupConfig.resourceId
-//     assignmentLevel: assignmentLevel
-//     customerTags: tags
-//     dceId: backend.outputs.dceId
-//     imageGalleryName: imageGalleryName
-//     instanceName: instanceName
-//     mgname: managementGroupName
-//     resourceGroupId: rg.outputs.resourceId
-//     solutionTag: solutionTag
-//     solutionVersion: solutionVersion
-//     storageAccountName: actionGroupCreate ? storageAccount.outputs.name : split(storageAccountConfig.resourceId, '/')[8]
-//     subscriptionId: subscriptionId
-//     userManagedIdentityResourceId: backend.outputs.packsUserManagedResourceId
-//     workspaceId: logAnalyticsCreate ? logAnalytics.outputs.resourceId : logAnalyticsConfig.resourceId
-//   }
-// }
+module iaasPack '../../Packs/IaaS/AllIaaSPacks.bicep' = if (deployIaaSPack) {
+  name: 'deployIaaSPack'
+  params: {
+    location: location
+    actionGroupResourceId: core.outputs.actionGroupResourceId
+    assignmentLevel: assignmentLevel
+    customerTags: tags
+    dceId: core.outputs.dataCollectionEndpointResourceId
+    imageGalleryName: discovery.outputs.imageGalleryName
+    instanceName: instanceName
+    mgname: managementGroup().name
+    resourceGroupId: rg.outputs.resourceId
+    solutionTag: solutionTag
+    solutionVersion: solutionVersion
+    storageAccountName: split(core.outputs.storageAccountResourceId, '/')[8]
+    subscriptionId: subscriptionId
+    userManagedIdentityResourceId: core.outputs.packsUserAssignedIdentityResourceId
+    workspaceId: core.outputs.logAnalyticsResourceId
+  }
+}
 
 // module paasPack '../../Packs/PaaS/AllPaaSPacks.bicep' = if (deployPaaSPack) {
 //   name: 'deployPaaSPack'

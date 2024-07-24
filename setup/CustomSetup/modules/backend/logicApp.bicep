@@ -20,7 +20,7 @@ resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@
   scope: resourceGroup(split(userAssignedIdentityResourceId, '/')[2], split(userAssignedIdentityResourceId, '/')[4])
 }
 
-module defaultFunctionKey 'key-vault-secrets.bicep' = {
+module defaultFunctionKey '../key-vault-secrets.bicep' = {
   scope: resourceGroup(split(keyVaultResourceId, '/')[2], split(keyVaultResourceId, '/')[4])
   name: 'defaultFunctionKey'
   params: {
@@ -146,9 +146,6 @@ module logicApp 'br/public:avm/res/logic/workflow:0.2.6' = {
                 type: 'Function'
                 inputs: {
                   body: '@body(\'Parse_JSON\')?[\'functionBody\']'
-                  // Headers: {
-                  //   'x-functions-key': listKeys('${functionApp.id}/host/default', '2023-12-01').functionKeys.default
-                  // }
                   function: {
                     id: '${functionApp.id}/functions/tagmgmt'
                   }

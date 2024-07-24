@@ -10,6 +10,7 @@ param grafanaConfig grafanaType
 param solutionTag string
 param location string
 param tags object
+param instanceName string
 
 param packsUserAssignedIdentityName string = 'id-packs'
 param functionUserAssignedIdentityName string = 'id-func'
@@ -77,6 +78,7 @@ module actionGroup 'br/public:avm/res/insights/action-group:0.2.5' = if (actionG
     groupShortName: actionGroupConfig.name
     location: actionGroupConfig.?location ?? location
     tags: tags
+    enableTelemetry: false
     enabled: true
     emailReceivers: [
       {
@@ -96,7 +98,7 @@ resource actionGroupExisting 'Microsoft.Insights/actionGroups@2023-01-01' existi
   name: last(split(actionGroupConfig.?resourceId ?? 'actionGroup', '/'))
 }
 
-module grafana '../../backend/code/modules/grafana.bicep' = if (grafanaConfig.createMode == 'default') {
+module grafana '../../../backend/code/modules/grafana.bicep' = if (grafanaConfig.createMode == 'default') {
   name: 'azureManagedGrafana'
   scope: rg
   params: {
@@ -114,6 +116,7 @@ module logAnalytics 'br/public:avm/res/operational-insights/workspace:0.3.5' = i
     name: logAnalyticsConfig.name
     location: location
     tags: tags
+    enableTelemetry: false
   }
 }
 
@@ -136,6 +139,7 @@ module storageAccount 'br/public:avm/res/storage/storage-account:0.9.1' = if (st
     kind: 'StorageV2'
     accessTier: 'Hot'
     publicNetworkAccess: 'Enabled'
+    enableTelemetry: false
     networkAcls: {
       defaultAction: 'Allow'
     }
@@ -193,7 +197,7 @@ module packsUserAssignedIdentity 'br/public:avm/res/managed-identity/user-assign
   }
 }
 
-module packsUMIManagementGroupRoleAssignment 'role-assignment/management-group.bicep' = [
+module packsUMIManagementGroupRoleAssignment '../role-assignment/management-group.bicep' = [
   for (item, index) in packPolicyRoleDefinitionIds: {
     name: 'packs-identity-role-${index}'
     params: {
@@ -213,7 +217,7 @@ module functionUserAssignedIdentity 'br/public:avm/res/managed-identity/user-ass
   }
 }
 
-module functionUMIManagementGroupRoleAssignment 'role-assignment/management-group.bicep' = [
+module functionUMIManagementGroupRoleAssignment '../role-assignment/management-group.bicep' = [
   for (item, index) in functionRoleDefinitionIds: {
     name: 'function-identity-role-${index}'
     params: {
@@ -222,6 +226,17 @@ module functionUMIManagementGroupRoleAssignment 'role-assignment/management-grou
     }
   }
 ]
+
+module dataCollectionEndpoint 'br/public:avm/res/insights/data-collection-endpoint:0.1.3' = {
+  scope: rg
+  name: 'data-collection-endpoint'
+  params: {
+    name: 'dce-amp-${instanceName}-${location}'
+    location: location
+    enableTelemetry: false
+    publicNetworkAccess: 'Enabled'
+  }
+}
 
 output keyVaultResourceId string = keyVaultConfig.createMode != 'existing'
   ? keyVault.outputs.resourceId
@@ -238,6 +253,7 @@ output storageAccountResourceId string = storageAccountConfig.createMode == 'def
   : storageAccountExisting.id
 output functionUserAssignedIdentityResourceId string = functionUserAssignedIdentity.outputs.resourceId
 output packsUserAssignedIdentityResourceId string = packsUserAssignedIdentity.outputs.resourceId
+output dataCollectionEndpointResourceId string = dataCollectionEndpoint.outputs.resourceId
 
 type LogAnalyticsDefaultType = {
   createMode: 'default'

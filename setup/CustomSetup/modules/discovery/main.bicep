@@ -97,3 +97,6 @@ module linuxDiscovery 'linux-discovery.bicep' = {
     tableName: discoveryTable.outputs.tableName
   }
 }
+
+output imageGalleryResourceId string = gallery.outputs.resourceId
+output imageGalleryName string = gallery.outputs.name
