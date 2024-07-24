@@ -41,7 +41,7 @@ resource policySetDef 'Microsoft.Authorization/policySetDefinitions@2021-06-01' 
   }
 }
 
-module assignment './assignment.bicep' = if (assignmentLevel == 'managementGroup'){
+module assignment './assignment.bicep' = if (assignmentLevel == 'ManagementGroup'){
   name: 'assignment-${initiativeName}'
   // dependsOn: [
   //   policySetDef
@@ -49,7 +49,7 @@ module assignment './assignment.bicep' = if (assignmentLevel == 'managementGroup
   params: {
     policyDefinitionId: policySetDef.id
     location: location
-    assignmentName: 'AMP-AMA-${initiativeName}-Set'
+    assignmentName: 'A-${instanceName}-${packtag}-S'
     solutionTag: solutionTag
     userManagedIdentityResourceId: userManagedIdentityResourceId
     // roledefinitionIds: [
@@ -57,7 +57,7 @@ module assignment './assignment.bicep' = if (assignmentLevel == 'managementGroup
     // ]
   }
 }
-module assignmentsub '../subscription/assignment.bicep' = if (assignmentLevel != 'managementGroup') {
+module assignmentsub '../subscription/assignment.bicep' = if (assignmentLevel != 'ManagementGroup') {
   name: 'assignment--${initiativeName}'
   // dependsOn: [
   //   policySetDef

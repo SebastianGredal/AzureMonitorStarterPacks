@@ -162,7 +162,7 @@ module dcrIISLogsMonitoring '../../../modules/DCRs/filecollectionWinIIS.bicep' =
   }
 }
 module policysetupIISLogs '../../../modules/policies/mg/policies.bicep' = {
-  name: 'policysetup-${packtag}-IISLogs'
+  name: 'policysetup-${packtag}-IISLogs-2'
   scope: managementGroup(mgname)
   params: {
     dcrId: dcrIISLogsMonitoring.outputs.dcrId
@@ -176,5 +176,6 @@ module policysetupIISLogs '../../../modules/policies/mg/policies.bicep' = {
     assignmentLevel: assignmentLevel
     subscriptionId: subscriptionId
     instanceName: instanceName
+    index: 2
   }
 }

@@ -34,10 +34,7 @@ The Main solution can be deployed by clicking the link below.
 
 ### [IaaS Packs](./IaaS)
 
-### [PaaS Packs](./PaaS/)
-
-### [Platform Packs](./Platform/)
-
+### [Services](./PaaS/)
 
 
 

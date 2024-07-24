@@ -41,7 +41,7 @@ module amaPolicyMG '../../modules/policies/mg/policySet.bicep' = {
   }
 }
 
-module assignment '../../modules/policies/mg/assignment.bicep' = if (assignmentLevel == 'managementGroup'){
+module assignment '../../modules/policies/mg/assignment.bicep' = if (assignmentLevel == 'ManagementGroup'){
   name: 'assignment-${rulename}'
   dependsOn: [
     amaPolicyMG
@@ -58,7 +58,7 @@ module assignment '../../modules/policies/mg/assignment.bicep' = if (assignmentL
     // ]
   }
 }
-module assignmentsub '../../modules/policies/subscription/assignment.bicep' = if (assignmentLevel != 'managementGroup') {
+module assignmentsub '../../modules/policies/subscription/assignment.bicep' = if (assignmentLevel != 'ManagementGroup') {
   name: 'assignment-${rulename}'
   dependsOn: [
     amaPolicyMG
@@ -68,7 +68,7 @@ module assignmentsub '../../modules/policies/subscription/assignment.bicep' = if
   params: {
     policyDefinitionId: amaPolicyMG.outputs.policySetDefId
     location: location
-    assignmentName: 'AMP-Assign-${rulename}'
+    assignmentName: 'AMP-ASub-${rulename}'
     solutionTag: solutionTag
     userManagedIdentityResourceId: AMAUserManagedIdentity.outputs.userManagedIdentityResourceId
     // roledefinitionIds: [
@@ -89,6 +89,10 @@ module AMAUserManagedIdentity '../backend/code/modules/userManagedIdentity.bicep
     resourceGroupName: resourceGroupName
     subscriptionId: subscriptionId
     solutionTag: solutionTag
+    RGroleDefinitionIds: [
+      
+    ]
+    addRGRoleAssignments: false
   }
 }
 module userIdentityRoleAssignments '../../modules/rbac/mg/roleassignment.bicep' =  [for (roledefinitionId, i) in roledefinitionIds:  {

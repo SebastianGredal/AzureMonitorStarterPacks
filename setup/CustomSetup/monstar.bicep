@@ -42,12 +42,12 @@ param existingActionGroupId string = ''
 param deployAllPacks bool
 param deployIaaSPacks bool = false
 param deployPaaSPacks bool = false
-param deployPlatformPacks bool = false
+// Platform packs no longer exist. All Packs are Paas Packs.
+//param deployPlatformPacks bool = false
 param deployDiscovery bool = false
-
 param collectTelemetry bool = true
 
-var deployPacks = deployAllPacks || deployIaaSPacks || deployPaaSPacks || deployPlatformPacks
+var deployPacks = deployAllPacks || deployIaaSPacks || deployPaaSPacks
 var solutionTag='MonitorStarterPacks'
 var solutionTagComponents='MonitorStarterPacksComponents'
 var solutionVersion='0.1'
@@ -59,10 +59,9 @@ var functionName = 'AMP-${instanceName}-${split(subscriptionId,'-')[0]}-Function
 var logicAppName = 'AMP-${instanceName}-LogicApp'
 var ImageGalleryName = 'AMP${instanceName}Gallery'
 
-
-
+// Resource Group if needed
 module resourgeGroup '../backend/code/modules/mg/resourceGroup.bicep' = if (createNewResourceGroup) {
-  name: 'resourceGroup-Deployment'
+  name: 'resourceGroup-Deployment-${instanceName}-${location}'
   scope: subscription(subscriptionId)
   params: {
     resourceGroupName: resourceGroupName
@@ -70,9 +69,9 @@ module resourgeGroup '../backend/code/modules/mg/resourceGroup.bicep' = if (crea
     Tags: Tags
   }
 }
-
+// Storage Account if needed.
 module storageAccount '../backend/code/modules/mg/storageAccount.bicep' = if (createNewStorageAccount) {
-  name:'newstorage-deployment'
+  name:'newstorage-${instanceName}-${location}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   dependsOn: [
     resourgeGroup
@@ -84,7 +83,7 @@ module storageAccount '../backend/code/modules/mg/storageAccount.bicep' = if (cr
   }
 }
 module existingStorageAccount '../backend/code/modules/mg/storageAccountBlobs.bicep' = if (!createNewStorageAccount) {
-  name:'existingstorage-deployment'
+  name:'existingstorage-${instanceName}-${location}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   params: {
     storageAccountName: storageAccountName
@@ -92,7 +91,7 @@ module existingStorageAccount '../backend/code/modules/mg/storageAccountBlobs.bi
 }
 
 module logAnalytics '../../modules/LAW/law.bicep' = if (createNewLogAnalyticsWS) {
-  name: 'logAnalytics-Deployment'
+  name: 'logAnalytics-${instanceName}-${location}'
   scope: resourceGroup(subscriptionId, resourceGroupName)
   dependsOn: [
     resourgeGroup
@@ -107,7 +106,7 @@ module logAnalytics '../../modules/LAW/law.bicep' = if (createNewLogAnalyticsWS)
 
 // AMA policy - conditionally deploy it
 module AMAPolicy '../AMAPolicy/amapoliciesmg.bicep' = if (deployAMApolicy) {
-  name: 'DeployAMAPolicy'
+  name: 'DeployAMAPolicy-${instanceName}-${location}'
   dependsOn: [
     resourgeGroup
   ]
@@ -123,7 +122,7 @@ module AMAPolicy '../AMAPolicy/amapoliciesmg.bicep' = if (deployAMApolicy) {
 }
 
 module discovery '../discovery/discovery.bicep' = if (deployDiscovery) {
-  name: 'DeployDiscovery-${instanceName}'
+  name: 'DeployDiscovery-${instanceName}-${location}'
   dependsOn: [
     backend
   ]
@@ -147,7 +146,7 @@ module discovery '../discovery/discovery.bicep' = if (deployDiscovery) {
 }
 
 module amg '../backend/code/modules/grafana.bicep' = if (newGrafana && deployGrafana) {
-  name: 'azureManagedGrafana-${instanceName}'
+  name: 'azureManagedGrafana-${instanceName}-${location}'
   dependsOn: [
     resourgeGroup
     logAnalytics
@@ -164,7 +163,7 @@ module amg '../backend/code/modules/grafana.bicep' = if (newGrafana && deployGra
 }
 
 module backend '../backend/code/backend.bicep' = {
-  name: 'MonitoringPacks-backend-${instanceName}'
+  name: 'MonitoringPacks-backend-${instanceName}-${location}'
   dependsOn: [
     resourgeGroup
   ]
@@ -172,7 +171,7 @@ module backend '../backend/code/backend.bicep' = {
     _artifactsLocation: _artifactsLocation
     _artifactsLocationSasToken: _artifactsLocationSasToken
     appInsightsLocation: appInsightsLocation
-//    currentUserIdObject: currentUserIdObject
+    //currentUserIdObject: currentUserIdObject
     functionname: functionName
     lawresourceid: createNewLogAnalyticsWS ? logAnalytics.outputs.lawresourceid : existingLogAnalyticsWSId
     location: location
@@ -190,7 +189,7 @@ module backend '../backend/code/backend.bicep' = {
 }
 
 module AllPacks '../../Packs/AllPacks.bicep' = if (deployPacks) {
-  name: 'DeployAllPacks'
+  name: 'DeployAllPacks-${instanceName}-${location}'
   dependsOn: [
     backend
   ]
@@ -217,7 +216,6 @@ module AllPacks '../../Packs/AllPacks.bicep' = if (deployPacks) {
     existingActionGroupResourceId: existingActionGroupId
     deployIaaSPacks: deployIaaSPacks || deployAllPacks
     deployPaaSPacks: deployPaaSPacks || deployAllPacks
-    deployPlatformPacks: deployPlatformPacks || deployAllPacks
     storageAccountName: storageAccountName
     imageGalleryName: ImageGalleryName
     instanceName: instanceName

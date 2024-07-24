@@ -7,9 +7,10 @@ param ruleshortname string
 param location string
 param userManagedIdentityResourceId string
 param mgname string
-param assignmentLevel string = 'managementGroup'
+param assignmentLevel string = 'ManagementGroup'
 param subscriptionId string
 param instanceName string
+param index int=1
 
 var roledefinitionIds=[
   '/providers/microsoft.authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa' 
@@ -35,31 +36,31 @@ module policyARC './associacionpolicyARC.bicep' = {
 //module policyAssignment {}
 // param policyAssignmentName string = 'audit-vm-manageddisks'
 // param policyDefinitionID string = '/providers/Microsoft.Authorization/policyDefinitions/06a78e20-9358-41c9-923c-fb736d382a4d'
-module arcassignment './assignment.bicep' = if(assignmentLevel == 'managementGroup') {
+module arcassignment './assignment.bicep' = if(assignmentLevel == 'ManagementGroup') {
   dependsOn: [
     policyARC
   ]
-  name: 'Assignment-${packtag}-${ruleshortname}-arc'
+  name: 'AM-${packtag}${index}-arc'
   scope: managementGroup(mgname)
   params: {
     policyDefinitionId: policyARC.outputs.policyId
     location: location
-    assignmentName: 'AMP-Assign-${ruleshortname}-arc'
+    assignmentName: 'AM-${packtag}${index}-arc'
     //roledefinitionIds: roledefinitionIds
     solutionTag: solutionTag
     userManagedIdentityResourceId: userManagedIdentityResourceId
   }
 }
-module arcassignmentsub '../subscription/assignment.bicep' = if(assignmentLevel != 'managementGroup') {
+module arcassignmentsub '../subscription/assignment.bicep' = if(assignmentLevel != 'ManagementGroup') {
   dependsOn: [
     policyARC
   ]
-  name: 'AssigSub-${packtag}-${ruleshortname}-arc'
+  name: 'ASub-${packtag}-${ruleshortname}-arc'
   scope: subscription(subscriptionId)
   params: {
     policyDefinitionId: policyARC.outputs.policyId
     location: location
-    assignmentName: 'AMP-Assign-${ruleshortname}-arc'
+    assignmentName: 'AMg-${ruleshortname}-arc'
     //roledefinitionIds: roledefinitionIds
     solutionTag: solutionTag
     userManagedIdentityResourceId: userManagedIdentityResourceId

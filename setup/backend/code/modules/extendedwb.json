@@ -4,7 +4,7 @@
     {
       "type": 1,
       "content": {
-        "json": "# Azure Monitor Starter Packs - Extended Admin Centre\n\n\n"
+        "json": "# Azure Monitor Starter Packs - Extended Admin Centre - V2.1\n\n\n"
       },
       "customWidth": "50",
       "name": "textTitle"
@@ -90,16 +90,8 @@
             "id": "c5269422-e723-43b6-b923-8bf44fd49320",
             "cellValue": "tabSelection",
             "linkTarget": "parameter",
-            "linkLabel": "PaaS",
+            "linkLabel": "Services",
             "subTarget": "paas",
-            "style": "link"
-          },
-          {
-            "id": "a346732e-6e74-4aa2-90e7-d198243e186a",
-            "cellValue": "tabSelection",
-            "linkTarget": "parameter",
-            "linkLabel": "Platform",
-            "subTarget": "platform",
             "style": "link"
           },
           {
@@ -149,6 +141,14 @@
             "linkLabel": "Configuration",
             "subTarget": "backend",
             "style": "link"
+          },
+          {
+            "id": "295ed7b4-8237-409a-87d2-1efd439bea97",
+            "cellValue": "tabSelection",
+            "linkTarget": "parameter",
+            "linkLabel": "Logs",
+            "subTarget": "logs",
+            "style": "link"
           }
         ]
       },
@@ -179,6 +179,9 @@
             "type": 9,
             "content": {
               "version": "KqlParameterItem/1.0",
+              "crossComponentResources": [
+                "/subscriptions/bd4d88c1-fc0f-482f-b57b-2f3ed541945e"
+              ],
               "parameters": [
                 {
                   "id": "7a778b2c-619d-4f82-bd1c-810f853af6fd",
@@ -201,8 +204,8 @@
                     "durationMs": 86400000
                   },
                   "value": [
-                    "/subscriptions/6c64f9ed-88d2-4598-8de6-7a9527dc16ca",
-                    "/subscriptions/b1e924f9-d16f-4260-a3c8-ff1ee462956b"
+                    "/subscriptions/bd4d88c1-fc0f-482f-b57b-2f3ed541945e",
+                    "/subscriptions/7591e487-7045-43a5-9896-e7a82cb2c602"
                   ]
                 },
                 {
@@ -228,7 +231,7 @@
                   },
                   "queryType": 1,
                   "resourceType": "microsoft.resources/tenants",
-                  "value": "/subscriptions/6c64f9ed-88d2-4598-8de6-7a9527dc16ca/resourceGroups/rg-MonstarPacks/providers/Microsoft.Logic/workflows/AMP-prod-LogicApp"
+                  "value": "/subscriptions/bd4d88c1-fc0f-482f-b57b-2f3ed541945e/resourceGroups/rg-MonstarPacks/providers/Microsoft.Logic/workflows/AMP-fta-LogicApp"
                 },
                 {
                   "id": "16d48fd3-189f-4604-9582-da7cf5c93d7c",
@@ -239,13 +242,15 @@
                   "description": "Select the function to provide the access key.",
                   "isRequired": true,
                   "isGlobal": true,
-                  "query": "resources\n| where type =~ 'microsoft.web/sites' and ['kind'] =~ 'functionapp'\n| where isnotempty(tags.MonitorStarterPacksComponents)\n| project id",
+                  "query": "resources\n| where type =~ 'microsoft.web/sites' and ['kind'] =~ 'functionapp'\n| where isnotempty(tags.MonitorStarterPacksComponents)\n| project id,name",
+                  "crossComponentResources": [
+                    "/subscriptions/bd4d88c1-fc0f-482f-b57b-2f3ed541945e"
+                  ],
                   "typeSettings": {
-                    "additionalResourceOptions": [],
-                    "showDefault": false
+                    "additionalResourceOptions": []
                   },
                   "queryType": 1,
-                  "value": "/subscriptions/6c64f9ed-88d2-4598-8de6-7a9527dc16ca/resourceGroups/rg-MonstarPacks/providers/Microsoft.Web/sites/AMP-prod-6c64f9ed-Function"
+                  "value": "/subscriptions/bd4d88c1-fc0f-482f-b57b-2f3ed541945e/resourceGroups/rg-MonstarPacks/providers/Microsoft.Web/sites/AMP-fta-bd4d88c1-Function"
                 },
                 {
                   "id": "c9fbafc9-2806-4c24-8d34-18f7cae66299",
@@ -280,7 +285,7 @@
                   },
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
-                  "value": "/subscriptions/6c64f9ed-88d2-4598-8de6-7a9527dc16ca/resourceGroups/rg-MonstarPacks/providers/Microsoft.OperationalInsights/workspaces/Monster-LAW"
+                  "value": "/subscriptions/bd4d88c1-fc0f-482f-b57b-2f3ed541945e/resourceGroups/rg-MonstarPacks/providers/Microsoft.OperationalInsights/workspaces/Monstar-LAW"
                 },
                 {
                   "id": "ea93902e-9856-4bd4-998d-ea88378907a7",
@@ -303,12 +308,12 @@
                   },
                   "queryType": 1,
                   "resourceType": "microsoft.resources/tenants",
-                  "value": "/subscriptions/6c64f9ed-88d2-4598-8de6-7a9527dc16ca/resourceGroups/rg-MonstarPacks/providers/Microsoft.Dashboard/grafana/AMSP6c64f9ed"
+                  "value": "/subscriptions/bd4d88c1-fc0f-482f-b57b-2f3ed541945e/resourceGroups/rg-MonstarPacks/providers/Microsoft.Dashboard/grafana/AMSPfta24"
                 }
               ],
               "style": "above",
               "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources"
+              "resourceType": "microsoft.operationalinsights/workspaces"
             },
             "customWidth": "100",
             "conditionalVisibility": {
@@ -322,6 +327,9 @@
             "type": 9,
             "content": {
               "version": "KqlParameterItem/1.0",
+              "crossComponentResources": [
+                "value::tenant"
+              ],
               "parameters": [
                 {
                   "id": "e5054aa1-60b0-4050-9f35-f4b2d3ac0d0e",
@@ -334,7 +342,8 @@
                   "timeContext": {
                     "durationMs": 86400000
                   },
-                  "queryType": 10
+                  "queryType": 10,
+                  "value": null
                 },
                 {
                   "version": "KqlParameterItem/1.0",
@@ -348,10 +357,27 @@
                   },
                   "queryType": 10,
                   "id": "9a917e70-be3e-43bb-a44b-85d857762cd9"
+                },
+                {
+                  "id": "03340268-1ac8-4d74-a76e-bc37a4bdd45c",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "appInsightsName",
+                  "type": 5,
+                  "query": "resources\n| where type == \"microsoft.insights/components\"\n| where name == \"{FunctionApps:name}\"\n| project id, name",
+                  "crossComponentResources": [
+                    "value::tenant"
+                  ],
+                  "typeSettings": {
+                    "additionalResourceOptions": []
+                  },
+                  "queryType": 1,
+                  "resourceType": "microsoft.resources/tenants",
+                  "value": "/subscriptions/bd4d88c1-fc0f-482f-b57b-2f3ed541945e/resourceGroups/rg-MonstarPacks/providers/Microsoft.Insights/components/AMP-fta-bd4d88c1-Function"
                 }
               ],
               "style": "pills",
-              "queryType": 10
+              "queryType": 1,
+              "resourceType": "microsoft.resources/tenants"
             },
             "conditionalVisibility": {
               "parameterName": "showHidden",
@@ -477,7 +503,7 @@
               "style": "tabs",
               "links": [
                 {
-                  "id": "fc71063c-85e2-47e3-948e-6fa66aa61264",
+                  "id": "04e679ee-16ae-46f6-a85b-d47751c0bcca",
                   "cellValue": "dashTab",
                   "linkTarget": "parameter",
                   "linkLabel": "Active Alerts",
@@ -486,7 +512,7 @@
                   "style": "link"
                 },
                 {
-                  "id": "dde4a907-380c-4030-a209-6f90f9442927",
+                  "id": "a4b4c83e-fce7-48e2-95ce-acf12c050eaa",
                   "cellValue": "dashTab",
                   "linkTarget": "parameter",
                   "linkLabel": "IaaS Summary",
@@ -494,24 +520,16 @@
                   "style": "link"
                 },
                 {
-                  "id": "b13511c2-e676-4686-af26-b7b06e6b1cea",
+                  "id": "4e01b5fe-51d5-4ba4-9d3c-6f5b5ef2d93c",
                   "cellValue": "dashTab",
                   "linkTarget": "parameter",
-                  "linkLabel": "PaaS Summary",
+                  "linkLabel": "Services Summary",
                   "subTarget": "paas",
-                  "style": "link"
-                },
-                {
-                  "id": "2b3a839d-d5ee-4aa8-b28d-342de670c9de",
-                  "cellValue": "dashTab",
-                  "linkTarget": "parameter",
-                  "linkLabel": "Platform Summary",
-                  "subTarget": "platform",
                   "style": "link"
                 }
               ]
             },
-            "name": "links - 3"
+            "name": "links - 3 - Copy"
           },
           {
             "type": 12,
@@ -536,7 +554,7 @@
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "resources | where type =~ 'microsoft.hybridcompute/machines' or type =~ 'microsoft.compute/virtualmachines'\n| extend MonitorStatus=iff(isempty(tostring(tags.MonitorStarterPacks)),'Monitored','Not Monitored')\n| summarize count() by MonitorStatus",
+                    "query": "resources | where type =~ 'microsoft.hybridcompute/machines' or type =~ 'microsoft.compute/virtualmachines'\n| extend MonitorStatus=iff(isnotempty(tostring(tags.MonitorStarterPacks)),'Monitored','Not Monitored')\n| summarize count() by MonitorStatus",
                     "size": 1,
                     "title": "Monitoring Status (Tags)",
                     "queryType": 1,
@@ -800,9 +818,16 @@
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "alertsmanagementresources\n| where ['type'] == 'microsoft.alertsmanagement/alerts'\n| project ['Alert Id']=id,resourceId=properties.context.context.resourceId, alertRule=tolower(tostring(properties.essentials.alertRule)), status=properties.context.status,severity=properties.context.context.severity\n| where isnotempty(alertRule)\n| join (resources\n| where type == \"microsoft.insights/scheduledqueryrules\" or type ==\"microsoft.insights/metricalerts\" or type == 'microsoft.insights/activitylogalerts'\n| where isnotempty(tags.MonitorStarterPacks)\n| extend alertRule=tolower(tostring(['id']))) on alertRule\n| project ['Alert Name']=name,['Details']=['Alert Id'], Status=status, Resource=resourceId, Sev=severity\n| where Status=='Activated'\n",
+                    "query": "alertsmanagementresources\n| where ['type'] == 'microsoft.alertsmanagement/alerts'\n| project ['Alert Id']=id,resourceId=properties.context.context.resourceId, alertRule=tolower(tostring(properties.essentials.alertRule)), status=properties.context.status,severity=properties.context.context.severity\n| where isnotempty(alertRule)\n| join (resources\n| where type == \"microsoft.insights/scheduledqueryrules\" or type ==\"microsoft.insights/metricalerts\" or type == 'microsoft.insights/activitylogalerts'\n| where isnotempty(tags.MonitorStarterPacks)\n| extend alertRule=tolower(tostring(['id']))) on alertRule\n| project id, ['Alert Name']=name,['Details']=['Alert Id'], Status=status, Resource=resourceId, Sev=severity\n| where Status=='Activated'\n",
                     "size": 0,
                     "title": "Active Alerts",
+                    "exportedParameters": [
+                      {
+                        "fieldName": "Details",
+                        "parameterName": "selectedAlertId",
+                        "parameterType": 5
+                      }
+                    ],
                     "queryType": 1,
                     "resourceType": "microsoft.resources/tenants",
                     "crossComponentResources": [
@@ -814,9 +839,14 @@
                           "columnMatch": "Details",
                           "formatter": 7,
                           "formatOptions": {
-                            "linkTarget": "Resource",
+                            "linkTarget": "OpenBlade",
                             "linkLabel": "Details",
-                            "linkIsContextBlade": true
+                            "linkIsContextBlade": true,
+                            "bladeOpenContext": {
+                              "bladeName": "AlertDetails.ReactView",
+                              "extensionName": "Microsoft_Azure_Monitoring_Alerts",
+                              "bladeJsonParameters": "{\n    \"alertId\": \"{selectedAlertId}\",\n    \"invokedFrom\": \"CopyLinkFeature\"\n}"
+                            }
                           }
                         },
                         {
@@ -1018,7 +1048,7 @@
               "version": "KqlItem/1.0",
               "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"3d65009c-120d-4954-aa36-dd1e33b4b1d8\",\"mergeType\":\"innerunique\",\"leftTable\":\"queryServiceTags\",\"rightTable\":\"query - resourcestomerge - nonIaaS\",\"leftColumn\":\"nameSpace\",\"rightColumn\":\"nameSpace\"}],\"projectRename\":[{\"originalName\":\"[queryServiceTags].tag\",\"mergedName\":\"tag\",\"fromId\":\"3d65009c-120d-4954-aa36-dd1e33b4b1d8\"},{\"originalName\":\"[queryServiceTags].type\",\"mergedName\":\"type\",\"fromId\":\"3d65009c-120d-4954-aa36-dd1e33b4b1d8\"},{\"originalName\":\"[query - resourcestomerge - nonIaaS].Total\",\"mergedName\":\"Total\",\"fromId\":\"3d65009c-120d-4954-aa36-dd1e33b4b1d8\"},{\"originalName\":\"[query - 18].type\"},{\"originalName\":\"[query - pass - resourcestomerge].type\"},{\"originalName\":\"[queryServiceTags].tag\"},{\"originalName\":\"[query - resourcestomerge - nonIaaS].nameSpace\"},{\"originalName\":\"[queryServiceTags].nameSpace\"}]}",
               "size": 0,
-              "title": "Monitored PaaS Services",
+              "title": "Monitored Services",
               "queryType": 7,
               "visualization": "piechart"
             },
@@ -1029,24 +1059,6 @@
             },
             "showPin": false,
             "name": "query - PaaS Graph Status"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"3d65009c-120d-4954-aa36-dd1e33b4b1d8\",\"mergeType\":\"innerunique\",\"leftTable\":\"query - resourcestomerge - nonIaaS\",\"rightTable\":\"queryServiceTags - Platform\",\"leftColumn\":\"nameSpace\",\"rightColumn\":\"nameSpace\"}],\"projectRename\":[{\"originalName\":\"[query - resourcestomerge - nonIaaS].nameSpace\",\"mergedName\":\"nameSpace\",\"fromId\":\"3d65009c-120d-4954-aa36-dd1e33b4b1d8\"},{\"originalName\":\"[query - resourcestomerge - nonIaaS].Total\",\"mergedName\":\"Total\",\"fromId\":\"3d65009c-120d-4954-aa36-dd1e33b4b1d8\"},{\"originalName\":\"[queryServiceTags - Platform].tag\",\"mergedName\":\"tag\",\"fromId\":\"3d65009c-120d-4954-aa36-dd1e33b4b1d8\"},{\"originalName\":\"[queryServiceTags - Platform].nameSpace\",\"mergedName\":\"nameSpace1\",\"fromId\":\"3d65009c-120d-4954-aa36-dd1e33b4b1d8\"},{\"originalName\":\"[queryServiceTags - Platform].type\",\"mergedName\":\"type\",\"fromId\":\"3d65009c-120d-4954-aa36-dd1e33b4b1d8\"},{\"originalName\":\"[query - 18].type\"},{\"originalName\":\"[query - pass - resourcestomerge].type\"},{\"originalName\":\"[queryServiceTags].tag\"},{\"originalName\":\"[query - resourcestomerge - nonIaaS].nameSpace\"},{\"originalName\":\"[queryServiceTags].nameSpace\"}]}",
-              "size": 0,
-              "title": "Monitored Platform Services",
-              "queryType": 7,
-              "visualization": "piechart"
-            },
-            "conditionalVisibility": {
-              "parameterName": "dashTab",
-              "comparison": "isEqualTo",
-              "value": "platform"
-            },
-            "showPin": false,
-            "name": "query - Platform Graph Status"
           }
         ]
       },
@@ -1380,7 +1392,9 @@
                         },
                         "queryType": 1,
                         "resourceType": "microsoft.resources/tenants",
-                        "value": null
+                        "value": [
+                          "VMI"
+                        ]
                       }
                     ],
                     "style": "pills",
@@ -1461,325 +1475,12 @@
       "content": {
         "version": "NotebookGroup/1.0",
         "groupType": "editable",
-        "title": "Platform Services",
+        "title": "Azure Services",
         "items": [
           {
             "type": 1,
             "content": {
-              "json": "## Platform Monitoring Setup\n\nSelect service on the right to assign a pack. Once the backend is done with the assigning, the service will show on the left side grid.\n\nOn the left side grid, the monitoring can be updated to remove a specific pack from the service.",
-              "style": "info"
-            },
-            "conditionalVisibility": {
-              "parameterName": "showHelp",
-              "comparison": "isEqualTo",
-              "value": "yes"
-            },
-            "name": "text - Monitoring - Platform"
-          },
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "editable",
-              "items": [
-                {
-                  "type": 3,
-                  "content": {
-                    "version": "KqlItem/1.0",
-                    "query": "resources\n{PlatformQuery}\n| where isnotempty(tags.MonitorStarterPacks)\n| project Resource=id, type,tag=tags.MonitorStarterPacks,resourceGroup, location, subscriptionId\n| join kind= leftouter   (resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions'\n| project Subscription=name,subscriptionId) on subscriptionId\n| project-away subscriptionId,subscriptionId1\n| sort by type asc",
-                    "size": 0,
-                    "title": "Monitored Services",
-                    "exportMultipleValues": true,
-                    "exportedParameters": [
-                      {
-                        "fieldName": "",
-                        "parameterName": "taggedPlatform",
-                        "parameterType": 5,
-                        "quote": ""
-                      },
-                      {
-                        "fieldName": "tag",
-                        "parameterName": "PlatformLeftTagsOnly",
-                        "parameterType": 1,
-                        "quote": ""
-                      }
-                    ],
-                    "queryType": 1,
-                    "resourceType": "microsoft.resourcegraph/resources",
-                    "crossComponentResources": [
-                      "{Subscriptions}"
-                    ],
-                    "visualization": "table",
-                    "gridSettings": {
-                      "formatters": [
-                        {
-                          "columnMatch": "tag",
-                          "formatter": 1
-                        }
-                      ],
-                      "filter": true
-                    },
-                    "sortBy": []
-                  },
-                  "name": "Monitored Servers",
-                  "styleSettings": {
-                    "margin": "400",
-                    "padding": "400",
-                    "showBorder": true
-                  }
-                },
-                {
-                  "type": 9,
-                  "content": {
-                    "version": "KqlParameterItem/1.0",
-                    "crossComponentResources": [
-                      "value::tenant"
-                    ],
-                    "parameters": [
-                      {
-                        "id": "54f2c7fb-7251-43b6-aa4d-fd94647cac4a",
-                        "version": "KqlParameterItem/1.0",
-                        "name": "PackTagsLeftPlatform",
-                        "label": "Add/Remove",
-                        "type": 2,
-                        "isGlobal": true,
-                        "multiSelect": true,
-                        "quote": "",
-                        "delimiter": ",",
-                        "query": "policyresources\n| where type =~ 'Microsoft.Authorization/policyDefinitions'\n| where  isnotempty(properties.metadata.MonitorStarterPacks) and properties.metadata.MonitoringPackType=='Platform'\n| extend Pack=tostring(properties.metadata.MonitorStarterPacks)\n| extend policyType=properties.policyRule.then.details.type\n| where policyType !~ 'Microsoft.Insights/dataCollectionRuleAssociations'\n| summarize by Pack",
-                        "crossComponentResources": [
-                          "value::tenant"
-                        ],
-                        "typeSettings": {
-                          "additionalResourceOptions": [],
-                          "showDefault": false
-                        },
-                        "timeContext": {
-                          "durationMs": 86400000
-                        },
-                        "queryType": 1,
-                        "resourceType": "microsoft.resources/tenants",
-                        "value": []
-                      }
-                    ],
-                    "style": "pills",
-                    "queryType": 1,
-                    "resourceType": "microsoft.resources/tenants"
-                  },
-                  "customWidth": "25",
-                  "conditionalVisibility": {
-                    "parameterName": "taggedPlatform",
-                    "comparison": "isNotEqualTo"
-                  },
-                  "name": "param-Platform-tagged"
-                },
-                {
-                  "type": 11,
-                  "content": {
-                    "version": "LinkItem/1.0",
-                    "style": "paragraph",
-                    "links": [
-                      {
-                        "id": "36b65f94-1c3d-4e7a-b771-677a2081d288",
-                        "cellValue": "",
-                        "linkTarget": "ArmAction",
-                        "linkLabel": "Remove Monitoring for {PlatformLeftTagsOnly} Pack(s).",
-                        "preText": "",
-                        "postText": "",
-                        "style": "primary",
-                        "linkIsContextBlade": true,
-                        "armActionContext": {
-                          "path": "{logicAppResource}/triggers/manual/run?api-version=2016-06-01",
-                          "headers": [],
-                          "params": [
-                            {
-                              "key": "action",
-                              "value": "removeTag"
-                            }
-                          ],
-                          "body": "{ \n  \"function\": \"tagmgmt\",\n  \"functionBody\" : {\n    \"Action\":\"RemoveTag\",\n    \"Resources\": [{taggedPlatform}],\n    \"Pack\": \"{PlatformLeftTagsOnly}\",\n    \"PackType\": \"Platform\"\n  }\n}",
-                          "httpMethod": "POST",
-                          "title": "Remove Monitoring",
-                          "description": "# Please confirm the change.\n\nRemove Monitoring for {PlatformLeftTagsOnly} Pack(s) \n\nResource(s):\n\n{taggedPlatform}",
-                          "runLabel": "Confirm"
-                        }
-                      }
-                    ]
-                  },
-                  "customWidth": "75",
-                  "conditionalVisibility": {
-                    "parameterName": "taggedPlatform",
-                    "comparison": "isNotEqualTo"
-                  },
-                  "name": "links - 1"
-                }
-              ],
-              "exportParameters": true
-            },
-            "customWidth": "50",
-            "name": "TaggedGroupPlatform"
-          },
-          {
-            "type": 12,
-            "content": {
-              "version": "NotebookGroup/1.0",
-              "groupType": "editable",
-              "items": [
-                {
-                  "type": 3,
-                  "content": {
-                    "version": "KqlItem/1.0",
-                    "query": "resources\n{PlatformQuery}\n| where isempty(tags.MonitorStarterPacks)\n| project Resource=id,type,resourceGroup, location, subscriptionId\n| join kind= leftouter   (resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions'\n| project Subscription=name,subscriptionId) on subscriptionId\n| project-away subscriptionId,subscriptionId1\n| sort by type asc",
-                    "size": 0,
-                    "title": "Non-monitored Services",
-                    "exportMultipleValues": true,
-                    "exportedParameters": [
-                      {
-                        "fieldName": "",
-                        "parameterName": "platformtotag",
-                        "parameterType": 1,
-                        "quote": ""
-                      }
-                    ],
-                    "queryType": 1,
-                    "resourceType": "microsoft.resourcegraph/resources",
-                    "crossComponentResources": [
-                      "{Subscriptions}"
-                    ],
-                    "visualization": "table",
-                    "gridSettings": {
-                      "filter": true,
-                      "sortBy": [
-                        {
-                          "itemKey": "Subscription",
-                          "sortOrder": 1
-                        }
-                      ]
-                    },
-                    "sortBy": [
-                      {
-                        "itemKey": "Subscription",
-                        "sortOrder": 1
-                      }
-                    ]
-                  },
-                  "name": "Non Monitored Platform",
-                  "styleSettings": {
-                    "margin": "400",
-                    "padding": "400",
-                    "showBorder": true
-                  }
-                },
-                {
-                  "type": 9,
-                  "content": {
-                    "version": "KqlParameterItem/1.0",
-                    "crossComponentResources": [
-                      "value::tenant"
-                    ],
-                    "parameters": [
-                      {
-                        "id": "8a177eab-edac-41cc-84f9-a5b7de931bea",
-                        "version": "KqlParameterItem/1.0",
-                        "name": "PackTagsPlatform",
-                        "label": "Select Pack to Enable",
-                        "type": 2,
-                        "isGlobal": true,
-                        "query": "policyresources\n| where type =~ 'Microsoft.Authorization/policyDefinitions'\n| where  isnotempty(properties.metadata.MonitorStarterPacks) and properties.metadata.MonitoringPackType=='Platform'\n| extend Pack=tostring(properties.metadata.MonitorStarterPacks)\n| extend policyType=properties.policyRule.then.details.type\n| where policyType !~ 'Microsoft.Insights/dataCollectionRuleAssociations'\n| summarize by Pack",
-                        "crossComponentResources": [
-                          "value::tenant"
-                        ],
-                        "typeSettings": {
-                          "additionalResourceOptions": [],
-                          "showDefault": false
-                        },
-                        "timeContext": {
-                          "durationMs": 86400000
-                        },
-                        "queryType": 1,
-                        "resourceType": "microsoft.resources/tenants",
-                        "value": "KeyVault"
-                      }
-                    ],
-                    "style": "pills",
-                    "queryType": 1,
-                    "resourceType": "microsoft.resources/tenants"
-                  },
-                  "customWidth": "50",
-                  "conditionalVisibility": {
-                    "parameterName": "platformtotag",
-                    "comparison": "isNotEqualTo"
-                  },
-                  "name": "param-platform-totag"
-                },
-                {
-                  "type": 11,
-                  "content": {
-                    "version": "LinkItem/1.0",
-                    "style": "paragraph",
-                    "links": [
-                      {
-                        "id": "91fb0fed-0e4f-41ce-9024-98a3cc4432a7",
-                        "linkTarget": "ArmAction",
-                        "linkLabel": "Enable Monitoring for {PackTagsPlatform} Pack",
-                        "preText": "",
-                        "style": "primary",
-                        "linkIsContextBlade": true,
-                        "armActionContext": {
-                          "path": "{logicAppResource}/triggers/manual/run?api-version=2016-06-01",
-                          "headers": [],
-                          "params": [
-                            {
-                              "key": "action",
-                              "value": "addTag"
-                            }
-                          ],
-                          "body": "{ \n  \"function\": \"tagmgmt\",\n  \"functionBody\" : {\n    \"Action\":\"AddTag\",\n    \"Resources\": [{platformtotag}],\n    \"Pack\": \"{PackTagsPlatform}\",\n    \"PackType\": \"Platform\"\n  }\n}",
-                          "httpMethod": "POST",
-                          "title": "Enable Monitoring Packs",
-                          "description": "# This will enable the pack for the following servers:\n{platformtotag}\n\nby adding the {PackTagsPlatform} Pack(s) to the resource(s).",
-                          "actionName": "EnableMonitoring",
-                          "runLabel": "Confirm"
-                        }
-                      }
-                    ]
-                  },
-                  "customWidth": "50",
-                  "conditionalVisibility": {
-                    "parameterName": "platformtotag",
-                    "comparison": "isNotEqualTo"
-                  },
-                  "name": "platformenableparameters"
-                }
-              ],
-              "exportParameters": true
-            },
-            "customWidth": "50",
-            "name": "NonTaggedGroup"
-          }
-        ]
-      },
-      "conditionalVisibility": {
-        "parameterName": "tabSelection",
-        "comparison": "isEqualTo",
-        "value": "platform"
-      },
-      "name": "PlatFormMgmt",
-      "styleSettings": {
-        "showBorder": true
-      }
-    },
-    {
-      "type": 12,
-      "content": {
-        "version": "NotebookGroup/1.0",
-        "groupType": "editable",
-        "title": "PaaS Services",
-        "items": [
-          {
-            "type": 1,
-            "content": {
-              "json": "## PaaS Monitoring Setup\n\nSelect service on the right to assign a pack. Once the backend is done with the assigning, the service will show on the left side grid.\n\nOn the left side grid, the monitoring can be updated to remove a specific pack from the service.",
+              "json": "## Services Monitoring Setup\n\nSelect service on the right to assign a pack. Once the backend is done with the assigning, the service will show on the left side grid.\n\nOn the left side grid, the monitoring can be updated to remove a specific pack from the service.",
               "style": "info"
             },
             "conditionalVisibility": {
@@ -1796,17 +1497,52 @@
               "groupType": "editable",
               "items": [
                 {
+                  "type": 9,
+                  "content": {
+                    "version": "KqlParameterItem/1.0",
+                    "parameters": [
+                      {
+                        "id": "69e06557-55cc-490c-86d2-892d7817b729",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "SelectPaasType",
+                        "label": "Select Service Type(s)",
+                        "type": 7,
+                        "multiSelect": true,
+                        "quote": "'",
+                        "delimiter": ",",
+                        "query": "{\"version\":\"CustomEndpoint/1.0\",\"data\":null,\"headers\":[{\"key\":\"x-functions-key\",\"value\":\"{configKey}\"}],\"method\":\"GET\",\"url\":\"https://{FunctionApps:name}.azurewebsites.net/api/config?Action=getSupportedServices\",\"contentType\":\"text/plain\",\"urlParams\":[],\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.*\",\"columns\":[]}}]}",
+                        "typeSettings": {
+                          "additionalResourceOptions": [
+                            "value::all"
+                          ],
+                          "showDefault": false
+                        },
+                        "timeContext": {
+                          "durationMs": 86400000
+                        },
+                        "queryType": 10,
+                        "value": [
+                          "value::all"
+                        ]
+                      }
+                    ],
+                    "style": "above",
+                    "queryType": 10
+                  },
+                  "name": "parameters - service type tagged"
+                },
+                {
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "resources\n{PaaSQuery}\n| where isnotempty(tags.MonitorStarterPacks)\n| project Resource=id, type,tag=tags.MonitorStarterPacks,resourceGroup, location, subscriptionId, ResourceName=name\n| join kind= leftouter   (resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions'\n| project Subscription=name,subscriptionId) on subscriptionId\n| project-away subscriptionId,subscriptionId1\n| sort by type asc",
+                    "query": "{\"version\":\"CustomEndpoint/1.0\",\"data\":null,\"headers\":[{\"key\":\"x-functions-key\",\"value\":\"{configKey}\"}],\"method\":\"GET\",\"url\":\"https://{FunctionApps:name}.azurewebsites.net/api/config?Action=getMonitoredPaaS\",\"contentType\":\"text/plain\",\"urlParams\":[{\"key\":\"resourceFilter\",\"value\":\"{SelectPaasType}\"}],\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.*\",\"columns\":[{\"path\":\"$.Resource\",\"columnid\":\"Resource\"},{\"path\":\"$.type\",\"columnid\":\"Type\"},{\"path\":\"$.tag\",\"columnid\":\"tag\"},{\"path\":\"$.Total\",\"columnid\":\"Total\"},{\"path\":\"$.resourceGroup\",\"columnid\":\"resourceGroup\"},{\"path\":\"$.kind\",\"columnid\":\"kind\"}]}}]}",
                     "size": 0,
-                    "title": "Monitored PaaS",
+                    "title": "Monitored Services",
                     "exportMultipleValues": true,
                     "exportedParameters": [
                       {
                         "parameterName": "taggedPaaS",
-                        "parameterType": 5,
+                        "parameterType": 1,
                         "quote": ""
                       },
                       {
@@ -1816,76 +1552,38 @@
                         "quote": ""
                       }
                     ],
-                    "queryType": 1,
-                    "resourceType": "microsoft.resourcegraph/resources",
-                    "crossComponentResources": [
-                      "{Subscriptions}"
-                    ],
-                    "visualization": "table",
+                    "queryType": 10,
                     "gridSettings": {
                       "formatters": [
                         {
-                          "columnMatch": "tag",
-                          "formatter": 1
+                          "columnMatch": "Total",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "thresholdsOptions": "icons",
+                            "thresholdsGrid": [
+                              {
+                                "operator": ">",
+                                "thresholdValue": "0",
+                                "representation": "success",
+                                "text": "{0}{1}"
+                              },
+                              {
+                                "operator": "Default",
+                                "thresholdValue": null,
+                                "representation": "warning",
+                                "text": "{0}{1}"
+                              }
+                            ]
+                          }
                         }
                       ],
                       "filter": true
-                    },
-                    "sortBy": []
+                    }
                   },
-                  "name": "Monitored PaaS",
+                  "name": "query - Monitored Services",
                   "styleSettings": {
-                    "margin": "400",
-                    "padding": "400",
                     "showBorder": true
                   }
-                },
-                {
-                  "type": 9,
-                  "content": {
-                    "version": "KqlParameterItem/1.0",
-                    "crossComponentResources": [
-                      "value::tenant"
-                    ],
-                    "parameters": [
-                      {
-                        "id": "54f2c7fb-7251-43b6-aa4d-fd94647cac4a",
-                        "version": "KqlParameterItem/1.0",
-                        "name": "PackTagsLeftPaaS",
-                        "label": "Add/Remove",
-                        "type": 2,
-                        "isGlobal": true,
-                        "multiSelect": true,
-                        "quote": "",
-                        "delimiter": ",",
-                        "query": "policyresources\n| where type =~ 'Microsoft.Authorization/policyDefinitions'\n| where  isnotempty(properties.metadata.MonitorStarterPacks) and properties.metadata.MonitoringPackType=='PaaS'\n| extend Pack=tostring(properties.metadata.MonitorStarterPacks)\n| extend policyType=properties.policyRule.then.details.type\n| where policyType !~ 'Microsoft.Insights/dataCollectionRuleAssociations'\n| summarize by Pack",
-                        "crossComponentResources": [
-                          "value::tenant"
-                        ],
-                        "typeSettings": {
-                          "additionalResourceOptions": [],
-                          "showDefault": false
-                        },
-                        "timeContext": {
-                          "durationMs": 86400000
-                        },
-                        "queryType": 1,
-                        "resourceType": "microsoft.resources/tenants",
-                        "value": [
-                          "Avd"
-                        ]
-                      }
-                    ],
-                    "style": "pills",
-                    "queryType": 1,
-                    "resourceType": "microsoft.resources/tenants"
-                  },
-                  "customWidth": "25",
-                  "conditionalVisibility": {
-                    "parameterName": "taggedPaaS",
-                    "comparison": "isNotEqualTo"
-                  },
-                  "name": "parametersPaaSLeft"
                 },
                 {
                   "type": 11,
@@ -1914,7 +1612,7 @@
                           "body": "{ \n  \"function\": \"tagmgmt\",\n  \"functionBody\" : {\n    \"Action\":\"RemoveTag\",\n    \"Resources\": [{taggedPaaS}],\n    \"Pack\": \"{PaaSLeftTagsOnly}\",\n    \"PackType\": \"PaaS\"\n  }\n}",
                           "httpMethod": "POST",
                           "title": "Remove Monitoring",
-                          "description": "# Please confirm the change.\n\nRemove Monitoring for {PaaSLeftTagsOnly} Pack(s).\n\nResources:\n\n{taggedPaaS:$.Resource}",
+                          "description": "# Please confirm the change.\n\nRemove Monitoring for Pack(s).\n\nResources:\n\n{taggedPaaS:$.Resource}\n\nTags:\n\n{taggedPaaS:$.tag}",
                           "runLabel": "Confirm"
                         }
                       }
@@ -1940,28 +1638,95 @@
               "groupType": "editable",
               "items": [
                 {
+                  "type": 9,
+                  "content": {
+                    "version": "KqlParameterItem/1.0",
+                    "parameters": [
+                      {
+                        "id": "f6a88467-77d9-4e0e-912a-3d7b94aab938",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "SelectPaaStypeToTag",
+                        "label": "Select Service Type",
+                        "type": 7,
+                        "multiSelect": true,
+                        "quote": "'",
+                        "delimiter": ",",
+                        "query": "{\"version\":\"CustomEndpoint/1.0\",\"data\":null,\"headers\":[{\"key\":\"x-functions-key\",\"value\":\"{configKey}\"}],\"method\":\"GET\",\"url\":\"https://{FunctionApps:name}.azurewebsites.net/api/config?Action=getSupportedServices\",\"contentType\":\"text/plain\",\"urlParams\":[],\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.*\",\"columns\":[]}}]}",
+                        "typeSettings": {
+                          "additionalResourceOptions": [
+                            "value::all"
+                          ],
+                          "showDefault": false
+                        },
+                        "timeContext": {
+                          "durationMs": 86400000
+                        },
+                        "queryType": 10,
+                        "value": [
+                          "value::all"
+                        ]
+                      }
+                    ],
+                    "style": "above",
+                    "queryType": 10
+                  },
+                  "name": "parameters - service type not tagged"
+                },
+                {
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "resources\n{PaaSQuery}\n| where isempty(tags.MonitorStarterPacks)\n| project Resource=id, type=tolower(type),resourceGroup, location, subscriptionId, ResourceName=name\n| join kind= leftouter   (resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions'\n| project Subscription=name,subscriptionId) on subscriptionId\n| project-away subscriptionId,subscriptionId1\n| sort by type asc",
+                    "query": "{\"version\":\"CustomEndpoint/1.0\",\"data\":null,\"headers\":[{\"key\":\"x-functions-key\",\"value\":\"{configKey}\"}],\"method\":\"GET\",\"url\":\"https://{FunctionApps:name}.azurewebsites.net/api/config?Action=getNonMonitoredPaaS\",\"contentType\":\"text/plain\",\"urlParams\":[{\"key\":\"resourceFilter\",\"value\":\"{SelectPaaStypeToTag}\"}],\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.*\",\"columns\":[{\"path\":\"$.Resource\",\"columnid\":\"Resource\"},{\"path\":\"$.type\",\"columnid\":\"type\"},{\"path\":\"$.tag\",\"columnid\":\"tag\"},{\"path\":\"$.location\",\"columnid\":\"location\"},{\"path\":\"$.resourceGroup\",\"columnid\":\"resourceGroup\"},{\"path\":\"$.kind\",\"columnid\":\"kind\"}]}}]}",
                     "size": 0,
-                    "title": "Non-monitored PaaS",
+                    "title": "Non-Monitored Services",
                     "exportMultipleValues": true,
                     "exportedParameters": [
                       {
-                        "fieldName": "",
                         "parameterName": "paastotag",
+                        "parameterType": 1,
+                        "quote": ""
+                      },
+                      {
+                        "fieldName": "tag",
+                        "parameterName": "PaaSTagsToAdd",
                         "parameterType": 1,
                         "quote": ""
                       }
                     ],
-                    "queryType": 1,
-                    "resourceType": "microsoft.resourcegraph/resources",
-                    "crossComponentResources": [
-                      "{Subscriptions}"
-                    ],
-                    "visualization": "table",
+                    "queryType": 10,
                     "gridSettings": {
+                      "formatters": [
+                        {
+                          "columnMatch": "Total",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "thresholdsOptions": "icons",
+                            "thresholdsGrid": [
+                              {
+                                "operator": ">=",
+                                "thresholdValue": "1",
+                                "representation": "success",
+                                "text": "{0}{1}"
+                              },
+                              {
+                                "operator": "<",
+                                "thresholdValue": "1",
+                                "representation": "2",
+                                "text": "{0}{1}"
+                              },
+                              {
+                                "operator": "Default",
+                                "thresholdValue": null,
+                                "representation": "unknown",
+                                "text": "{0}{1}"
+                              }
+                            ]
+                          },
+                          "tooltipFormat": {
+                            "tooltip": "Total number of Alerts assigned to this resource."
+                          }
+                        }
+                      ],
                       "filter": true,
                       "sortBy": [
                         {
@@ -1977,54 +1742,10 @@
                       }
                     ]
                   },
-                  "name": "Non Monitores PaaS",
+                  "name": "query - nonMonitored Paas - Copy",
                   "styleSettings": {
-                    "margin": "400",
-                    "padding": "400",
                     "showBorder": true
                   }
-                },
-                {
-                  "type": 9,
-                  "content": {
-                    "version": "KqlParameterItem/1.0",
-                    "crossComponentResources": [
-                      "value::tenant"
-                    ],
-                    "parameters": [
-                      {
-                        "id": "8a177eab-edac-41cc-84f9-a5b7de931bea",
-                        "version": "KqlParameterItem/1.0",
-                        "name": "PackTagsPaaS",
-                        "label": "Select Pack to Enable",
-                        "type": 2,
-                        "isGlobal": true,
-                        "query": "policyresources\n| where type =~ 'Microsoft.Authorization/policyDefinitions'\n| where  isnotempty(properties.metadata.MonitorStarterPacks) and properties.metadata.MonitoringPackType=='PaaS'\n| extend Pack=tostring(properties.metadata.MonitorStarterPacks)\n| extend policyType=properties.policyRule.then.details.type\n| where policyType !~ 'Microsoft.Insights/dataCollectionRuleAssociations'\n| summarize by Pack",
-                        "crossComponentResources": [
-                          "value::tenant"
-                        ],
-                        "typeSettings": {
-                          "additionalResourceOptions": [],
-                          "showDefault": false
-                        },
-                        "timeContext": {
-                          "durationMs": 86400000
-                        },
-                        "queryType": 1,
-                        "resourceType": "microsoft.resources/tenants",
-                        "value": "Avd"
-                      }
-                    ],
-                    "style": "pills",
-                    "queryType": 1,
-                    "resourceType": "microsoft.resources/tenants"
-                  },
-                  "customWidth": "50",
-                  "conditionalVisibility": {
-                    "parameterName": "paastotag",
-                    "comparison": "isNotEqualTo"
-                  },
-                  "name": "param-paas-totag"
                 },
                 {
                   "type": 9,
@@ -2063,7 +1784,7 @@
                   "customWidth": "50",
                   "conditionalVisibilities": [
                     {
-                      "parameterName": "PackTagsPaaS",
+                      "parameterName": "paastotag",
                       "comparison": "isNotEqualTo"
                     },
                     {
@@ -2083,7 +1804,7 @@
                       {
                         "id": "91fb0fed-0e4f-41ce-9024-98a3cc4432a7",
                         "linkTarget": "ArmAction",
-                        "linkLabel": "Enable Monitoring for {PackTagsPaaS} Pack",
+                        "linkLabel": "Enable Monitoring",
                         "preText": "",
                         "style": "primary",
                         "linkIsContextBlade": true,
@@ -2096,10 +1817,10 @@
                               "value": "addTag"
                             }
                           ],
-                          "body": "{ \n  \"function\": \"tagmgmt\",\n  \"functionBody\" : {\n    \"Action\":\"AddTag\",\n    \"Resources\": [{paastotag}],\n    \"Pack\": \"{PackTagsPaaS}\",\n    \"PackType\": \"PaaS\",\n    \"AVDLAW\": \"{AvdLAWPaaS}\"\n  }\n}",
+                          "body": "{ \n  \"function\": \"tagmgmt\",\n  \"functionBody\" : {\n    \"Action\":\"AddTag\",\n    \"Resources\": [{paastotag}],\n    \"Pack\": \"{PaaSTagsToAdd}\",\n    \"PackType\": \"PaaS\",\n    \"AVDLAW\": \"{AvdLAWPaaS}\"\n  }\n}",
                           "httpMethod": "POST",
                           "title": "Enable Monitoring Packs",
-                          "description": "# This will enable the pack for the following services:\n***{paastotag:$.ResourceName}***\n\nby adding the **{PackTagsPaaS}** Pack(s) to the resource(s).\n\n_AVD Alternate Log Analytics Workspace (if any):_\n\n{AvdLAWPaaS:name}",
+                          "description": "# This will enable the pack for the following services:\n***{paastotag:$.Resource}***\n\nby adding the specific Pack(s) to the resource(s).\n\n_AVD Alternate Log Analytics Workspace (if any):_\n\n{AvdLAWPaaS:name}",
                           "actionName": "EnableMonitoring",
                           "runLabel": "Confirm"
                         }
@@ -2202,7 +1923,7 @@
                   },
                   "queryType": 1,
                   "resourceType": "microsoft.resources/tenants",
-                  "value": "ALB"
+                  "value": "Storage"
                 }
               ],
               "style": "pills",
@@ -4869,10 +4590,174 @@
         "padding": "400",
         "showBorder": true
       }
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "crossComponentResources": [
+                "{appInsightsName}"
+              ],
+              "parameters": [
+                {
+                  "id": "dffde712-0ef1-4c46-922a-47a42643130c",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "appInsightsTimeframe",
+                  "label": "Time Range",
+                  "type": 4,
+                  "typeSettings": {
+                    "selectableValues": [
+                      {
+                        "durationMs": 300000
+                      },
+                      {
+                        "durationMs": 900000
+                      },
+                      {
+                        "durationMs": 1800000
+                      },
+                      {
+                        "durationMs": 3600000
+                      },
+                      {
+                        "durationMs": 14400000
+                      },
+                      {
+                        "durationMs": 43200000
+                      },
+                      {
+                        "durationMs": 86400000
+                      },
+                      {
+                        "durationMs": 172800000
+                      },
+                      {
+                        "durationMs": 259200000
+                      },
+                      {
+                        "durationMs": 604800000
+                      },
+                      {
+                        "durationMs": 1209600000
+                      },
+                      {
+                        "durationMs": 2419200000
+                      },
+                      {
+                        "durationMs": 2592000000
+                      }
+                    ]
+                  },
+                  "timeContext": {
+                    "durationMs": 2592000000
+                  },
+                  "value": {
+                    "durationMs": 2419200000
+                  }
+                },
+                {
+                  "id": "70107de5-d9cd-46ea-9027-43d83053dac3",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "FunctionApp",
+                  "label": "Function App",
+                  "type": 2,
+                  "query": "requests\n| project\n    timestamp,\n    id,\n    operation_Name,\n    success,\n    resultCode,\n    duration,\n    operation_Id,\n    cloud_RoleName,\n    invocationId=customDimensions['InvocationId']\n| order by timestamp desc\n| take 20\n| summarize by Functions=operation_Name\n",
+                  "crossComponentResources": [
+                    "{appInsightsName}"
+                  ],
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "timeContext": {
+                    "durationMs": 2592000000
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.insights/components",
+                  "value": "config"
+                }
+              ],
+              "style": "pills",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components"
+            },
+            "name": "parameters - 18"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "requests\n| project\n    timestamp,\n    id,\n    operation_Name,\n    success,\n    resultCode,\n    duration,\n    operation_Id,\n    cloud_RoleName,\n    invocationId=customDimensions['InvocationId']\n| where operation_Name =~ '{FunctionApp}'\n| order by timestamp desc\n| take 20",
+              "size": 0,
+              "title": "Invocations",
+              "timeContextFromParameter": "appInsightsTimeframe",
+              "exportedParameters": [
+                {
+                  "fieldName": "invocationId",
+                  "parameterName": "invocationid",
+                  "parameterType": 1
+                },
+                {
+                  "fieldName": "operation_Id",
+                  "parameterName": "operationid",
+                  "parameterType": 1
+                }
+              ],
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{appInsightsName}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "id",
+                    "formatter": 5
+                  }
+                ]
+              }
+            },
+            "customWidth": "30",
+            "name": "queryInvocations"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "union traces\n| union exceptions\n| where operation_Id == '{operationid}'\n| where customDimensions['InvocationId'] == '{invocationid}'\n| order by timestamp asc\n| project\n    timestamp,\n    message = iff(message != '', message, iff(innermostMessage != '', innermostMessage, customDimensions.[strcat('prop__{','OriginalFormat}')])),\n    logLevel = customDimensions.['LogLevel']",
+              "size": 0,
+              "title": "Invocation Details",
+              "noDataMessage": "No Invocation Selected",
+              "timeContextFromParameter": "appInsightsTimeframe",
+              "exportFieldName": "invocationId",
+              "exportParameterName": "invocationid",
+              "queryType": 0,
+              "resourceType": "microsoft.insights/components",
+              "crossComponentResources": [
+                "{appInsightsName}"
+              ]
+            },
+            "customWidth": "70",
+            "name": "queryInvocationDetails"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "tabSelection",
+        "comparison": "isEqualTo",
+        "value": "logs"
+      },
+      "name": "groupLogs"
     }
   ],
   "fallbackResourceIds": [
-    "/subscriptions/6c64f9ed-88d2-4598-8de6-7a9527dc16ca/resourcegroups/rg-monstarpacks/providers/microsoft.operationalinsights/workspaces/monster-law"
+    "azure monitor"
   ],
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
 }

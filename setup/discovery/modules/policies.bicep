@@ -7,7 +7,7 @@ param ruleshortname string
 param location string
 param userManagedIdentityResourceId string
 param mgname string
-param assignmentLevel string = 'managementGroup'
+param assignmentLevel string = 'ManagementGroup'
 param subscriptionId string
 param packtype string
 param instanceName string
@@ -34,7 +34,7 @@ module policyVM '../modules/associacionpolicyVM.bicep' = {
     instanceName: instanceName
   }
 }
-module vmassignment '../modules/assignment.bicep' = if(assignmentLevel == 'managementGroup') {
+module vmassignment '../modules/assignment.bicep' = if(assignmentLevel == 'ManagementGroup') {
   dependsOn: [
     policyVM
   ]
@@ -42,14 +42,14 @@ module vmassignment '../modules/assignment.bicep' = if(assignmentLevel == 'manag
   scope: managementGroup(mgname)
   params: {
     policyDefinitionId: policyVM.outputs.policyId
-    assignmentName: 'AMP-Assign-${ruleshortname}-vm'
+    assignmentName: 'AMg-${ruleshortname}-vm'
     location: location
     //roledefinitionIds: roledefinitionIds
     solutionTag: solutionTag
     userManagedIdentityResourceId: userManagedIdentityResourceId
   }
 }
-module vmassignmentsub '../modules/sub/assignment.bicep' = if(assignmentLevel != 'managementGroup') {
+module vmassignmentsub '../modules/sub/assignment.bicep' = if(assignmentLevel != 'ManagementGroup') {
   dependsOn: [
     policyVM
   ]
