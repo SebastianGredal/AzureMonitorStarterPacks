@@ -31,7 +31,7 @@ param subscriptionId string
 param resourceGroupId string
 param assignmentLevel string
 //param grafanaName string
-param customerTags object 
+param customerTags object
 param instanceName string
 
 module Storage './Storage/monitoring.bicep' = {
@@ -126,7 +126,7 @@ module SQLMI './SQL/SQLMI/alerts.bicep' = {
     resourceType: 'Microsoft.Sql/managedInstances'
   }
 }
-module SQLSrv './SQL/server/alerts.bicep' = {                              
+module SQLSrv './SQL/server/alerts.bicep' = {
   name: 'SQLSrvAlerts'
   params: {
     assignmentLevel: assignmentLevel

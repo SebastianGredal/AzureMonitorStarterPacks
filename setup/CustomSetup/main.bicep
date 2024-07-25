@@ -185,36 +185,18 @@ module iaasPack '../../Packs/IaaS/AllIaaSPacks.bicep' = if (deployIaaSPack) {
 //   name: 'deployPaaSPack'
 //   params: {
 //     location: location
-//     actionGroupResourceId: actionGroup.outputs.resourceId
+//     actionGroupResourceId: core.outputs.actionGroupResourceId
 //     assignmentLevel: assignmentLevel
 //     customerTags: unionTags
-//     dceId: backend.outputs.dceId
+//     dceId: core.outputs.dataCollectionEndpointResourceId
 //     instanceName: instanceName
-//     mgname: managementGroupName
+//     mgname: managementGroup().name
 //     resourceGroupId: rg.outputs.resourceId
 //     solutionTag: solutionTag
 //     solutionVersion: solutionVersion
 //     subscriptionId: subscriptionId
-//     userManagedIdentityResourceId: backend.outputs.packsUserManagedResourceId
-//     workspaceId: logAnalytics.outputs.resourceId
-//   }
-// }
-
-// module platformPack '../../Packs/Platform/AllPlatformPacks.bicep' = if (deployPlatformPack) {
-//   name: 'deployPlatformPack'
-//   params: {
-//     location: location
-//     actionGroupResourceId: actionGroup.outputs.resourceId
-//     assignmentLevel: assignmentLevel
-//     customerTags: unionTags
-//     mgname: managementGroupName
-//     instanceName: instanceName
-//     resourceGroupId: rg.outputs.resourceId
-//     solutionTag: solutionTag
-//     solutionVersion: solutionVersion
-//     subscriptionId: subscriptionId
-//     userManagedIdentityResourceId: backend.outputs.packsUserManagedResourceId
-//     workspaceId: logAnalytics.outputs.resourceId
+//     userManagedIdentityResourceId: core.outputs.packsUserAssignedIdentityResourceId
+//     workspaceId: core.outputs.logAnalyticsResourceId
 //   }
 // }
 

@@ -180,7 +180,7 @@
             "content": {
               "version": "KqlParameterItem/1.0",
               "crossComponentResources": [
-                "/subscriptions/bd4d88c1-fc0f-482f-b57b-2f3ed541945e"
+                "value::tenant"
               ],
               "parameters": [
                 {
@@ -244,7 +244,7 @@
                   "isGlobal": true,
                   "query": "resources\n| where type =~ 'microsoft.web/sites' and ['kind'] =~ 'functionapp'\n| where isnotempty(tags.MonitorStarterPacksComponents)\n| project id,name",
                   "crossComponentResources": [
-                    "/subscriptions/bd4d88c1-fc0f-482f-b57b-2f3ed541945e"
+                    "value::tenant"
                   ],
                   "typeSettings": {
                     "additionalResourceOptions": []
@@ -363,7 +363,7 @@
                   "version": "KqlParameterItem/1.0",
                   "name": "appInsightsName",
                   "type": 5,
-                  "query": "resources\n| where type == \"microsoft.insights/components\"\n| where name == \"{FunctionApps:name}\"\n| project id, name",
+                  "query": "resources\n| where type == \"microsoft.insights/components\"\n| where isnotempty(tags.monitorStarterPacksComponents) or isnotempty(tags.MonitorStarterPacksComponents)\n | project id, name",
                   "crossComponentResources": [
                     "value::tenant"
                   ],

@@ -1,5 +1,5 @@
 using './main.bicep'
-
+// New-AzManagementGroupDeployment -Name amp -Location swedencentral -ManagementGroupId test -TemplateParameterFile .\setup\CustomSetup\main.bicepparam
 param _artifactsLocation = 'https://raw.githubusercontent.com/JCoreMS/AzureMonitorStarterPacks/AVDMerge/'
 param _artifactsLocationSasToken = ''
 param subscriptionId = 'e973cb1c-e0e0-4e65-87db-6a5bd11fe045'

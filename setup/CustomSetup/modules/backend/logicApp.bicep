@@ -4,6 +4,7 @@ param keyVaultResourceId string
 param logicAppName string
 param functionAppResourceId string
 param userAssignedIdentityResourceId string
+param tags object
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' existing = {
   name: split(keyVaultResourceId, '/')[8]
@@ -53,6 +54,7 @@ module logicAppConnection 'br/public:avm/res/web/connection:0.2.0' = {
         }
       }
     }
+    tags: tags
   }
 }
 
@@ -63,6 +65,7 @@ module logicApp 'br/public:avm/res/logic/workflow:0.2.6' = {
   name: 'logicApp'
   params: {
     name: logicAppName
+    tags: tags
     managedIdentities: {
       userAssignedResourceIds: [
         userAssignedIdentityResourceId

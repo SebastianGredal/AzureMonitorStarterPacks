@@ -69,6 +69,7 @@ module functionAppPlan 'br/public:avm/res/web/serverfarm:0.2.2' = {
     location: location
     zoneRedundant: false
     enableTelemetry: false
+    tags: tags
   }
 }
 
@@ -92,6 +93,12 @@ module functionApp 'br/public:avm/res/web/site:0.3.9' = {
     siteConfig: {
       alwaysOn: false
       powershellVersion: '7.4'
+      cors: {
+        allowedOrigins: [
+          'https://portal.azure.com'
+        ]
+        supportCredentials: true
+      }
     }
     basicPublishingCredentialsPolicies: [
       {
@@ -215,5 +222,6 @@ module logicApp 'logicApp.bicep' = {
     keyVaultResourceId: keyVault.id
     logicAppName: logicAppName
     location: location
+    tags: tags
   }
 }
