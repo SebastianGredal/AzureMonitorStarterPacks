@@ -22,9 +22,9 @@ param Tags object
 
 //var managementgroupname= split(managementGroupId, '/')[1]
 
-var roledefinitionIds= [
-     '9980e02c-c2be-4d73-94e8-173b1dc7cf3c' // Virtual Machine Contributor
-     '48b40c6e-82e0-4eb3-90d5-19e40f49b624' // Hybrid Server Resource Administrator
+var roledefinitionIds = [
+  '9980e02c-c2be-4d73-94e8-173b1dc7cf3c' // Virtual Machine Contributor
+  '48b40c6e-82e0-4eb3-90d5-19e40f49b624' // Hybrid Server Resource Administrator
 ]
 var rulename = '${solutionTag}-amaPolicy'
 
@@ -41,7 +41,7 @@ module amaPolicyMG '../../modules/policies/mg/policySet.bicep' = {
   }
 }
 
-module assignment '../../modules/policies/mg/assignment.bicep' = if (assignmentLevel == 'ManagementGroup'){
+module assignment '../../modules/policies/mg/assignment.bicep' = if (assignmentLevel =~ 'ManagementGroup') {
   name: 'assignment-${rulename}'
   dependsOn: [
     amaPolicyMG
@@ -58,7 +58,7 @@ module assignment '../../modules/policies/mg/assignment.bicep' = if (assignmentL
     // ]
   }
 }
-module assignmentsub '../../modules/policies/subscription/assignment.bicep' = if (assignmentLevel != 'ManagementGroup') {
+module assignmentsub '../../modules/policies/subscription/assignment.bicep' = if (assignmentLevel !~ 'ManagementGroup') {
   name: 'assignment-${rulename}'
   dependsOn: [
     amaPolicyMG
@@ -89,20 +89,20 @@ module AMAUserManagedIdentity '../backend/code/modules/userManagedIdentity.bicep
     resourceGroupName: resourceGroupName
     subscriptionId: subscriptionId
     solutionTag: solutionTag
-    RGroleDefinitionIds: [
-      
-    ]
+    RGroleDefinitionIds: []
     addRGRoleAssignments: false
   }
 }
-module userIdentityRoleAssignments '../../modules/rbac/mg/roleassignment.bicep' =  [for (roledefinitionId, i) in roledefinitionIds:  {
-  name: 'AMAUserManagedIdentityRoles-${i}'
-  scope: managementGroup()
-  params: {
-    resourcename: 'AMAUserManagedIdentity'
-    principalId: AMAUserManagedIdentity.outputs.userManagedIdentityPrincipalId
-    solutionTag: solutionTag
-    roleDefinitionId: roledefinitionId
-    roleShortName: roledefinitionId
+module userIdentityRoleAssignments '../../modules/rbac/mg/roleassignment.bicep' = [
+  for (roledefinitionId, i) in roledefinitionIds: {
+    name: 'AMAUserManagedIdentityRoles-${i}'
+    scope: managementGroup()
+    params: {
+      resourcename: 'AMAUserManagedIdentity'
+      principalId: AMAUserManagedIdentity.outputs.userManagedIdentityPrincipalId
+      solutionTag: solutionTag
+      roleDefinitionId: roledefinitionId
+      roleShortName: roledefinitionId
+    }
   }
-}]
+]

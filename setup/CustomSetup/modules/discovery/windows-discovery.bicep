@@ -141,13 +141,13 @@ module applicationPolicy 'vm-application-policy.bicep' = {
 }
 
 module applicationPolicyAssignment 'br/public:avm/ptn/authorization/policy-assignment:0.1.1' = {
-  name: 'win-discovery-app-policy-assignment-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
+  name: 'win-discovery-app-policy-assignment-${assignmentLevel =~ 'ManagementGroup' ? 'mg' : 'sub'}'
   params: {
     displayName: 'Windows AMP ${galleryApplicationName}'
-    name: 'win-amp-app-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
+    name: 'win-amp-app-${assignmentLevel =~ 'ManagementGroup' ? 'mg' : 'sub'}'
     policyDefinitionId: applicationPolicy.outputs.resourceId
     managementGroupId: managementGroup().name
-    subscriptionId: assignmentLevel == 'managementGroup' ? '' : subscriptionId
+    subscriptionId: assignmentLevel =~ 'ManagementGroup' ? '' : subscriptionId
     enableTelemetry: false
     identity: 'UserAssigned'
     userAssignedIdentityId: packsUserAssignedIdentityResourceId
@@ -234,13 +234,13 @@ module dataCollectionRuleAssociationPolicy 'vm-association-policy.bicep' = {
 }
 
 module dataCollectionRuleAssociationPolicyAssignment 'br/public:avm/ptn/authorization/policy-assignment:0.1.1' = {
-  name: 'win-discovery-dcr-association-policy-assignment-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
+  name: 'win-discovery-dcr-association-policy-assignment-${assignmentLevel =~ 'ManagementGroup' ? 'mg' : 'sub'}'
   params: {
     displayName: 'Windows AMP ${dataCollectionRule.outputs.name}'
-    name: 'win-amp-dcr-assoc-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
+    name: 'win-amp-dcr-assoc-${assignmentLevel =~ 'ManagementGroup' ? 'mg' : 'sub'}'
     policyDefinitionId: dataCollectionRuleAssociationPolicy.outputs.resourceId
     managementGroupId: managementGroup().name
-    subscriptionId: assignmentLevel == 'managementGroup' ? '' : subscriptionId
+    subscriptionId: assignmentLevel =~ 'ManagementGroup' ? '' : subscriptionId
     enableTelemetry: false
     identity: 'UserAssigned'
     userAssignedIdentityId: packsUserAssignedIdentityResourceId

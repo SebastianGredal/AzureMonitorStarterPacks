@@ -7,7 +7,7 @@ param packtag string = 'ADDS'
 param location string //= resourceGroup().location
 @description('Full resource ID of the log analytics workspace to be used for the deployment.')
 param workspaceId string
-param solutionTag string 
+param solutionTag string
 @description('Full resource ID of the data collection endpoint to be used for the deployment.')
 param dceId string
 @description('Full resource ID of the user managed identity to be used for the deployment')
@@ -29,9 +29,9 @@ param OS string
 var resourceGroupName = split(resourceGroupId, '/')[4]
 
 var tableNameToUse = '${tableName}_CL'
-var lawFriendlyName = split(workspaceId,'/')[8]
-var lawResourceGroupName = split(workspaceId,'/')[4]
-var lawSubscriptionId = split(workspaceId,'/')[2]
+var lawFriendlyName = split(workspaceId, '/')[8]
+var lawResourceGroupName = split(workspaceId, '/')[4]
+var lawSubscriptionId = split(workspaceId, '/')[2]
 
 // VM Application to collect the data - this would be ideally an extension
 module addscollectionapp '../../../setup/discovery/modules/aigapp.bicep' = {
@@ -92,7 +92,7 @@ module applicationPolicy '../../../setup/discovery/modules/vmapplicationpolicy.b
     packtype: 'IaaS'
   }
 }
-module vmapplicationAssignment '../../../setup/discovery/modules/assignment.bicep' = if(assignmentLevel == 'ManagementGroup') {
+module vmapplicationAssignment '../../../setup/discovery/modules/assignment.bicep' = if (assignmentLevel =~ 'ManagementGroup') {
   dependsOn: [
     applicationPolicy
   ]
@@ -107,7 +107,7 @@ module vmapplicationAssignment '../../../setup/discovery/modules/assignment.bice
     userManagedIdentityResourceId: userManagedIdentityResourceId
   }
 }
-module vmassignmentsub '../../../setup/discovery/modules/sub/assignment.bicep' = if(assignmentLevel != 'ManagementGroup') {
+module vmassignmentsub '../../../setup/discovery/modules/sub/assignment.bicep' = if (assignmentLevel !~ 'ManagementGroup') {
   dependsOn: [
     applicationPolicy
   ]

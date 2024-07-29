@@ -1,21 +1,19 @@
-targetScope='managementGroup'
+targetScope = 'managementGroup'
 param packtag string
 param solutionTag string
 param location string
 param userManagedIdentityResourceId string
-param assignmentSuffix string=''
+param assignmentSuffix string = ''
 param mgname string
 param assignmentLevel string = 'ManagementGroup'
 param subscriptionId string
 param resourceType string
 param instanceName string
-param index int=1
-@allowed(
-  [
-    'diag'
-    'alert'
-  ]
-)
+param index int = 1
+@allowed([
+  'diag'
+  'alert'
+])
 param policyType string
 param policydefinitionId string
 var resourceShortType = split(resourceType, '/')[1]
@@ -29,19 +27,19 @@ var resourceShortType = split(resourceType, '/')[1]
 // param policyAssignmentName string = 'audit-vm-manageddisks'
 // param policyDefinitionID string = '/providers/Microsoft.Authorization/policyDefinitions/06a78e20-9358-41c9-923c-fb736d382a4d'
 
-module diagassignment './assignment.bicep' = if(assignmentLevel == 'ManagementGroup') {
+module diagassignment './assignment.bicep' = if (assignmentLevel =~ 'ManagementGroup') {
   name: 'AM-${packtag}${index}-${instanceName}'
   scope: managementGroup(mgname)
   params: {
     policyDefinitionId: policydefinitionId
-    assignmentName: 'AM-${instanceName}-${packtag}${index}'//-${resourceShortType}-${assignmentSuffix}'
+    assignmentName: 'AM-${instanceName}-${packtag}${index}' //-${resourceShortType}-${assignmentSuffix}'
     location: location
     //roledefinitionIds: roledefinitionIds
     solutionTag: solutionTag
     userManagedIdentityResourceId: userManagedIdentityResourceId
   }
 }
-module diagassignmentsub '../subscription/assignment.bicep' = if(assignmentLevel != 'ManagementGroup') {
+module diagassignmentsub '../subscription/assignment.bicep' = if (assignmentLevel !~ 'ManagementGroup') {
   name: 'AM-${packtag}-${resourceShortType}-${assignmentSuffix}'
   scope: subscription(subscriptionId)
   params: {

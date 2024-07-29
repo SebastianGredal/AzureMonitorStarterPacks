@@ -1,8 +1,8 @@
-targetScope = 'managementGroup' 
+targetScope = 'managementGroup'
 
 @maxLength(64)
 @description('PolicySet name')
-param initiativeName string 
+param initiativeName string
 
 @maxLength(128)
 @description('PolicySet display Name')
@@ -15,7 +15,7 @@ param initiativeDescription string
 @description('array of policy IDs')
 //param initiativePoliciesID array
 param solutionTag string
-param category string = 'Monitoring' 
+param category string = 'Monitoring'
 param version string = '1.0.0'
 param policyDefinitions array
 param assignmentLevel string
@@ -36,12 +36,12 @@ resource policySetDef 'Microsoft.Authorization/policySetDefinitions@2021-06-01' 
       '${solutionTag}': packtag
     }
     parameters: {}
-    policyDefinitions:  policyDefinitions
+    policyDefinitions: policyDefinitions
     policyType: 'Custom'
   }
 }
 
-module assignment './assignment.bicep' = if (assignmentLevel == 'ManagementGroup'){
+module assignment './assignment.bicep' = if (assignmentLevel =~ 'ManagementGroup') {
   name: 'assignment-${initiativeName}'
   // dependsOn: [
   //   policySetDef
@@ -57,7 +57,7 @@ module assignment './assignment.bicep' = if (assignmentLevel == 'ManagementGroup
     // ]
   }
 }
-module assignmentsub '../subscription/assignment.bicep' = if (assignmentLevel != 'ManagementGroup') {
+module assignmentsub '../subscription/assignment.bicep' = if (assignmentLevel !~ 'ManagementGroup') {
   name: 'assignment--${initiativeName}'
   // dependsOn: [
   //   policySetDef

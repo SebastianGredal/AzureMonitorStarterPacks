@@ -7,7 +7,7 @@ param packtag string = 'CrtW'
 param location string //= resourceGroup().location
 @description('Full resource ID of the log analytics workspace to be used for the deployment.')
 param workspaceId string
-param solutionTag string 
+param solutionTag string
 @description('Full resource ID of the data collection endpoint to be used for the deployment.')
 param dceId string
 @description('Full resource ID of the user managed identity to be used for the deployment')
@@ -29,7 +29,7 @@ param OS string
 var resourceGroupName = split(resourceGroupId, '/')[4]
 
 var tableNameToUse = '${tableName}_CL'
-var lawFriendlyName = split(workspaceId,'/')[8]
+var lawFriendlyName = split(workspaceId, '/')[8]
 
 // VM Application to collect the data - this would be ideally an extension
 module certswcollectionapp '../../../setup/discovery/modules/aigapp.bicep' = {
@@ -83,14 +83,14 @@ module applicationPolicy '../../../setup/discovery/modules/vmapplicationpolicy.b
     policyName: 'Install ${appName}'
     policyDisplayName: 'Install ${appName} to ${OS} VMs'
     solutionTag: solutionTag
-    vmapplicationResourceId:certswcollectionappversion.outputs.appVersionId
+    vmapplicationResourceId: certswcollectionappversion.outputs.appVersionId
     roledefinitionIds: [
       '/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
     ]
     packtype: 'IaaS'
   }
 }
-module vmapplicationAssignment '../../../setup/discovery/modules/assignment.bicep' = if(assignmentLevel == 'ManagementGroup') {
+module vmapplicationAssignment '../../../setup/discovery/modules/assignment.bicep' = if (assignmentLevel =~ 'ManagementGroup') {
   dependsOn: [
     applicationPolicy
   ]
@@ -105,7 +105,7 @@ module vmapplicationAssignment '../../../setup/discovery/modules/assignment.bice
     userManagedIdentityResourceId: userManagedIdentityResourceId
   }
 }
-module vmassignmentsub '../../../setup/discovery/modules/sub/assignment.bicep' = if(assignmentLevel != 'ManagementGroup') {
+module vmassignmentsub '../../../setup/discovery/modules/sub/assignment.bicep' = if (assignmentLevel !~ 'ManagementGroup') {
   dependsOn: [
     applicationPolicy
   ]

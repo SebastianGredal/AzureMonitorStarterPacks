@@ -1,6 +1,6 @@
 targetScope = 'managementGroup'
 
-param location string 
+param location string
 param solutionTag string
 param solutionVersion string
 param subscriptionId string
@@ -82,7 +82,7 @@ module applicationPolicy '../modules/vmapplicationpolicy.bicep' = {
     packtype: 'Discovery'
   }
 }
-module vmapplicationAssignment '../modules/assignment.bicep' = if(assignmentLevel == 'ManagementGroup') {
+module vmapplicationAssignment '../modules/assignment.bicep' = if (assignmentLevel =~ 'ManagementGroup') {
   dependsOn: [
     applicationPolicy
   ]
@@ -97,7 +97,7 @@ module vmapplicationAssignment '../modules/assignment.bicep' = if(assignmentLeve
     userManagedIdentityResourceId: userManagedIdentityResourceId
   }
 }
-module vmassignmentsub '../modules/sub/assignment.bicep' = if(assignmentLevel != 'ManagementGroup') {
+module vmassignmentsub '../modules/sub/assignment.bicep' = if (assignmentLevel !~ 'ManagementGroup') {
   dependsOn: [
     applicationPolicy
   ]

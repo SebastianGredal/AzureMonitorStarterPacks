@@ -144,13 +144,13 @@ module applicationPolicy 'vm-application-policy.bicep' = {
 }
 
 module applicationPolicyAssignment 'br/public:avm/ptn/authorization/policy-assignment:0.1.1' = {
-  name: 'linux-discovery-app-policy-assignment-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
+  name: 'linux-discovery-app-policy-assignment-${assignmentLevel =~ 'ManagementGroup' ? 'mg' : 'sub'}'
   params: {
     displayName: 'Linux AMP ${galleryApplicationName}'
-    name: 'linux-amp-app-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
+    name: 'linux-amp-app-${assignmentLevel =~ 'ManagementGroup' ? 'mg' : 'sub'}'
     policyDefinitionId: applicationPolicy.outputs.resourceId
     managementGroupId: managementGroup().name
-    subscriptionId: assignmentLevel == 'managementGroup' ? '' : subscriptionId
+    subscriptionId: assignmentLevel =~ 'ManagementGroup' ? '' : subscriptionId
     enableTelemetry: false
     identity: 'UserAssigned'
     userAssignedIdentityId: packsUserAssignedIdentityResourceId
@@ -237,13 +237,13 @@ module dataCollectionRuleAssociationPolicy 'vm-association-policy.bicep' = {
 }
 
 module dataCollectionRuleAssociationPolicyAssignment 'br/public:avm/ptn/authorization/policy-assignment:0.1.1' = {
-  name: 'linux-discovery-dcr-association-policy-assignment-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
+  name: 'linux-discovery-dcr-association-policy-assignment-${assignmentLevel =~ 'ManagementGroup' ? 'mg' : 'sub'}'
   params: {
     displayName: 'Linux AMP ${dataCollectionRule.outputs.name}'
-    name: 'linux-amp-dcr-assoc-${assignmentLevel == 'managementGroup' ? 'mg' : 'sub'}'
+    name: 'linux-amp-dcr-assoc-${assignmentLevel =~ 'ManagementGroup' ? 'mg' : 'sub'}'
     policyDefinitionId: dataCollectionRuleAssociationPolicy.outputs.resourceId
     managementGroupId: managementGroup().name
-    subscriptionId: assignmentLevel == 'managementGroup' ? '' : subscriptionId
+    subscriptionId: assignmentLevel =~ 'ManagementGroup' ? '' : subscriptionId
     enableTelemetry: false
     identity: 'UserAssigned'
     userAssignedIdentityId: packsUserAssignedIdentityResourceId
